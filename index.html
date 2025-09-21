@@ -68,6 +68,17 @@
             background-color: #f9fafb;
             color: var(--color-text);
         }
+        
+        .btn.btn-white-bordered {
+            background-color: white;
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .btn.btn-white-bordered:hover {
+            background-color: var(--color-primary);
+            color: white;
+        }
 
         .btn.btn-success {
             background-color: var(--color-green);
@@ -174,6 +185,80 @@
         #mobile-menu.open {
             transform: translateX(0);
         }
+
+        /* Animation for correct/incorrect feedback */
+        @keyframes correct-pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes incorrect-shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .correct-animation {
+            animation: correct-pop 0.3s ease-out;
+        }
+        
+        .incorrect-animation {
+            animation: incorrect-shake 0.5s ease-out;
+        }
+        
+        #feedback-image {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease-out;
+        }
+        
+        #feedback-image.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* Star animation */
+        @keyframes star-pop-1 {
+            0% { transform: translate(-30px, 0) scale(0) rotate(-30deg); opacity: 0; }
+            50% { transform: translate(-30px, 0) scale(1.1) rotate(-30deg); opacity: 1; }
+            100% { transform: translate(-30px, 0) scale(1) rotate(-30deg); opacity: 1; }
+        }
+        
+        @keyframes star-pop-2 {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(0deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        
+        @keyframes star-pop-3 {
+            0% { transform: translate(30px, 0) scale(0) rotate(30deg); opacity: 0; }
+            50% { transform: translate(30px, 0) scale(1.1) rotate(30deg); opacity: 1; }
+            100% { transform: translate(30px, 0) scale(1) rotate(30deg); opacity: 1; }
+        }
+
+        .star-container img {
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .star-container #star-1.visible {
+            animation: star-pop-1 0.6s ease-out forwards;
+        }
+
+        .star-container #star-2.visible {
+            animation: star-pop-2 0.6s ease-out forwards;
+            animation-delay: 0.1s;
+        }
+
+        .star-container #star-3.visible {
+            animation: star-pop-3 0.6s ease-out forwards;
+            animation-delay: 0.2s;
+        }
     </style>
 </head>
 <body class="pb-12">
@@ -184,28 +269,18 @@
                 <img src="https://i.postimg.cc/MKjSWxqq/9.png" alt="HIRAGO! logo" class="h-8">
             </div>
 
-            <nav class="hidden sm:flex items-center space-x-4"></nav>
-
-            <div class="sm:hidden">
-                <button id="mobile-menu-btn" class="text-gray-500 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            <nav class="flex items-center space-x-4">
+                <button id="bgm-toggle-btn" class="text-gray-500 hover:text-gray-700 focus:outline-none transition-colors duration-200">
+                    <span id="bgm-icon" class="w-6 h-6"></span>
+                </button>
+                <button id="settings-btn" class="text-gray-500 hover:text-gray-700 focus:outline-none transition-colors duration-200">
+                    <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1.51-1V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2z"></path>
                     </svg>
                 </button>
-            </div>
+            </nav>
         </div>
-        
-        <nav id="mobile-menu" class="sm:hidden fixed inset-y-0 right-0 w-64 bg-white p-4 z-50 transform translate-x-full">
-            <div class="flex justify-end mb-4">
-                <button id="mobile-menu-close-btn" class="text-gray-500 focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div class="flex flex-col space-y-4"></div>
-        </nav>
-        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
     </header>
     <!-- Main content container, responsive padding adjusted -->
     <div class="pt-20 px-0 md:px-8 lg:px-12 flex items-center justify-center">
@@ -284,7 +359,13 @@
                     <div class="progress-bar">
                         <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
                     </div>
-                    <h3 id="q-stem" class="text-4xl font-extrabold text-center text-gray-900 my-8">문제 표시</h3>
+                    <div class="relative min-h-[100px] flex items-center justify-center">
+                        <h3 id="q-stem" class="text-4xl font-extrabold text-center text-gray-900 my-8">문제 표시</h3>
+                        <!-- 정답/오답 애니메이션을 위한 요소 -->
+                        <div id="feedback-animation" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <img id="feedback-image" src="" alt="feedback" class="scale-0 opacity-0 transform-gpu transition-all duration-300">
+                        </div>
+                    </div>
                     <div id="choices" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
                     <div id="input-row" class="flex items-center justify-center gap-4" style="display:none">
                         <input id="text-answer" type="text" placeholder="로마자 입력 (예: a, ka, shi)" class="w-full sm:w-1/2 p-3 text-lg text-center rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -301,6 +382,11 @@
             </div>
             <div id="screen-result" class="card p-8 md:p-10 space-y-6" style="display:none">
                 <h2 class="text-xl font-bold text-center text-gray-800">테스트 결과</h2>
+                <div class="star-container flex justify-center items-center my-6">
+                    <img id="star-1" src="https://hirago.nmate.kr/images/star.png" alt="Star 1" class="w-16 h-16 star-1">
+                    <img id="star-2" src="https://hirago.nmate.kr/images/star.png" alt="Star 2" class="w-20 h-20 mx-4 star-2">
+                    <img id="star-3" src="https://hirago.nmate.kr/images/star.png" alt="Star 3" class="w-16 h-16 star-3">
+                </div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
                     <div class="bg-gray-50 p-4 rounded-xl">
                         <p class="text-sm text-gray-500">총점</p>
@@ -328,13 +414,36 @@
                     <div class="space-y-2 max-h-48 overflow-y-auto pr-2" id="range-acc-list"></div>
                 </div>
                 <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-                    <button id="btn-retry" class="btn btn-success w-full sm:w-auto">같은 범위로 재시험</button>
+                    <button id="btn-retry" class="btn btn-white-bordered w-full sm:w-auto">같은 범위로 재시험</button>
                     <button id="btn-wrong-retake" class="btn btn-primary w-full sm:w-auto">오답만 재시험</button>
                     <button id="btn-new-range" class="btn btn-ghost w-full sm:w-auto">다른 범위 선택</button>
                 </div>
             </div>
         </div>
         <audio id="audio" preload="none"></audio>
+        <audio id="sfx-correct" src="https://hirago.nmate.kr/audio/answer.wav" preload="auto"></audio>
+        <audio id="sfx-incorrect" src="https://hirago.nmate.kr/audio/no.mp3" preload="auto"></audio>
+        <audio id="sfx-clear" src="https://hirago.nmate.kr/audio/clear.mp3" preload="auto"></audio>
+        <audio id="bgm" loop preload="auto"></audio>
+    </div>
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 sm:p-8 w-11/12 max-w-md shadow-lg">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">설정</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">배경음 볼륨</label>
+                    <input type="range" id="bgm-volume" min="0" max="1" step="0.01" value="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">효과음 볼륨</label>
+                    <input type="range" id="sfx-volume" min="0" max="1" step="0.01" value="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button id="settings-close-btn" class="btn btn-primary">닫기</button>
+            </div>
+        </div>
     </div>
     <div class="w-full text-center mt-8">
         <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
@@ -351,27 +460,6 @@
     </footer>
 
     <script>
-        /* 네비게이션 로직 */
-        document.addEventListener('DOMContentLoaded', () => {
-            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const mobileMenuCloseBtn = document.getElementById('mobile-menu-close-btn');
-            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
-
-            mobileMenuBtn.addEventListener('click', () => {
-                mobileMenu.classList.add('open');
-                mobileMenuOverlay.classList.remove('hidden');
-            });
-            mobileMenuCloseBtn.addEventListener('click', () => {
-                mobileMenu.classList.remove('open');
-                mobileMenuOverlay.classList.add('hidden');
-            });
-            mobileMenuOverlay.addEventListener('click', () => {
-                mobileMenu.classList.remove('open');
-                mobileMenuOverlay.classList.add('hidden');
-            });
-        });
-        
         /* 데이터 정의 */
         const rows = [
             { key: 'a', name: 'あ행', kana: ['あ', 'い', 'う', 'え', 'お'], romaji: ['a', 'i', 'u', 'e', 'o'] },
@@ -384,7 +472,7 @@
             { key: 'ya', name: 'や행', kana: ['や', '', 'ゆ', '', 'よ'], romaji: ['ya', '', 'yu', '', 'yo'] },
             { key: 'ra', name: 'ら행', kana: ['ら', 'り', 'る', 'れ', 'ろ'], romaji: ['ra', 'ri', 'ru', 're', 'ro'] },
             { key: 'wa', name: 'わ행', kana: ['わ', '', '', '', 'を'], romaji: ['wa', '', '', '', 'wo'] },
-            { key: 'n', name: 'ん행', kana: ['ん'], romaji: ['n'] },
+            { key: 'n', name: 'ん', kana: ['ん'], romaji: ['n'] },
         ];
         const cols = [
             { key: 'a-col', name: '아단', idx: 0, romaji: 'a' },
@@ -396,13 +484,17 @@
 
         function buildAllItems() {
             const items = [];
-            rows.forEach((r, ri) => {
-                r.kana.forEach((k, ci) => {
-                    const rom = r.romaji[ci] || '';
-                    if (!k || !rom) return;
-                    items.push({ row: r.key, rowName: r.name, colIdx: ci, colName: cols[ci] ? cols[ci].name : '단독', kana: k, romaji: rom });
+            if (rows && Array.isArray(rows)) {
+                rows.forEach((r) => {
+                    if (r.kana && Array.isArray(r.kana)) {
+                        r.kana.forEach((k, ci) => {
+                            const rom = r.romaji[ci] || '';
+                            if (!k || !rom) return;
+                            items.push({ row: r.key, rowName: r.name, colIdx: ci, colName: cols[ci] ? cols[ci].name : '단독', kana: k, romaji: rom });
+                        });
+                    }
                 });
-            });
+            }
             return items;
         }
         const ALL_ITEMS = buildAllItems();
@@ -468,25 +560,35 @@
                     updateSelectionUI();
                 });
                 row.appendChild(th);
-                r.kana.forEach((k, ci) => {
-                    const cell = row.insertCell();
-                    cell.classList.add('hiragana-grid-cell', 'p-3', 'text-lg', 'font-medium', 'text-gray-900', 'rounded-lg');
-                    if (!k) {
-                        cell.classList.add('text-gray-400');
+                if (r.kana && Array.isArray(r.kana)) {
+                    r.kana.forEach((k, ci) => {
+                        const cell = row.insertCell();
+                        cell.classList.add('hiragana-grid-cell', 'p-3', 'text-lg', 'font-medium', 'text-gray-900', 'rounded-lg');
+                        if (!k) {
+                            cell.classList.add('text-gray-400');
+                            cell.textContent = '-';
+                            cell.style.cursor = 'default';
+                        } else {
+                            cell.textContent = k;
+                            cell.title = r.romaji[ci];
+                            cell.style.cursor = 'pointer';
+                            if (selectedKeys.has(`${r.key}-${ci}-${k}`)) cell.classList.add('selected');
+                            cell.addEventListener('click', () => {
+                                toggleCell(`${r.key}-${ci}-${k}`);
+                                if (audioOn) playAudioFor(r.romaji[ci]);
+                                updateSelectionUI();
+                            });
+                        }
+                    });
+                } else {
+                    // 빈 셀을 추가하여 레이아웃 유지
+                    for (let i = 0; i < 5; i++) {
+                        const cell = row.insertCell();
+                        cell.classList.add('hiragana-grid-cell', 'text-gray-400', 'p-3', 'text-lg', 'font-medium');
                         cell.textContent = '-';
                         cell.style.cursor = 'default';
-                    } else {
-                        cell.textContent = k;
-                        cell.title = r.romaji[ci];
-                        cell.style.cursor = 'pointer';
-                        if (selectedKeys.has(`${r.key}-${ci}-${k}`)) cell.classList.add('selected');
-                        cell.addEventListener('click', () => {
-                            toggleCell(`${r.key}-${ci}-${k}`);
-                            if (audioOn) playAudioFor(r.romaji[ci]);
-                            updateSelectionUI();
-                        });
                     }
-                });
+                }
             });
         }
 
@@ -638,6 +740,141 @@
                 console.warn(`오디오를 찾을 수 없습니다: ${romaji}`);
             }
         }
+        
+        /* 배경 음악 로직 */
+        const bgm = $('#bgm');
+        const sfxCorrect = $('#sfx-correct');
+        const sfxIncorrect = $('#sfx-incorrect');
+        const sfxClear = $('#sfx-clear');
+        
+        const bgmUrls = [
+            'https://t1.daumcdn.net/cfile/tistory/990D774B5DA925FD24',
+            'https://t1.daumcdn.net/cfile/tistory/99114F4E5F69FDB824',
+            'https://t1.daumcdn.net/cfile/tistory/9917C53B5E90D86609',
+            'https://t1.daumcdn.net/cfile/tistory/991F394C5DAF29B015',
+            'https://t1.daumcdn.net/cfile/tistory/99214F405DB5C57A10',
+            'https://t1.daumcdn.net/cfile/tistory/9924503B5DABF24B08',
+            'https://t1.daumcdn.net/cfile/tistory/99261E4C5DAFED0725',
+            'https://t1.daumcdn.net/cfile/tistory/99299C3A5F75A3812A',
+            'https://t1.daumcdn.net/cfile/tistory/992A9B485DB1ADC71A',
+            'https://t1.daumcdn.net/cfile/tistory/992FF7425DB1B3F11A',
+            'https://t1.daumcdn.net/cfile/tistory/9932104A5DA92C792C',
+            'https://t1.daumcdn.net/cfile/tistory/99340A365DB5D4AA02',
+            'https://t1.daumcdn.net/cfile/tistory/9939ED4D5DA997780C',
+            'https://t1.daumcdn.net/cfile/tistory/993B8C485DA9930A26',
+            'https://t1.daumcdn.net/cfile/tistory/99400B3C5DB076032C',
+            'https://t1.daumcdn.net/cfile/tistory/9942463F5E90DB3909',
+            'https://t1.daumcdn.net/cfile/tistory/994BA5425DAA9A672E',
+            'https://t1.daumcdn.net/cfile/tistory/994C4C4B5DA99B9126',
+            'https://t1.daumcdn.net/cfile/tistory/9962B14A5DAF260C25',
+            'https://t1.daumcdn.net/cfile/tistory/997617475F68D72C11',
+            'https://t1.daumcdn.net/cfile/tistory/99787E375F68EC8002',
+            'https://t1.daumcdn.net/cfile/tistory/997C94435DA9D0EB0F',
+            'https://t1.daumcdn.net/cfile/tistory/997FA84F5DAF37E332',
+            'https://t1.daumcdn.net/cfile/tistory/9980B83A5DA994ED06',
+            'https://t1.daumcdn.net/cfile/tistory/9982654B5DA9BC9839',
+            'https://t1.daumcdn.net/cfile/tistory/99896A465DB1ABF921',
+            'https://t1.daumcdn.net/cfile/tistory/999201355DA98F741D',
+            'https://t1.daumcdn.net/cfile/tistory/9993AC435F68C2CC0D',
+            'https://t1.daumcdn.net/cfile/tistory/99A46F445DB5DE7404',
+            'https://t1.daumcdn.net/cfile/tistory/99B2364C5DAFD85603',
+            'https://t1.daumcdn.net/cfile/tistory/99B437335DA9BFD434',
+            'https://t1.daumcdn.net/cfile/tistory/99B8574C5DAAA2172E',
+            'https://t1.daumcdn.net/cfile/tistory/99BA0B385DABEEE101',
+            'https://t1.daumcdn.net/cfile/tistory/99C3B0465DA99E4E2E',
+            'https://t1.daumcdn.net/cfile/tistory/99CA0E385DB07B5E0D',
+            'https://t1.daumcdn.net/cfile/tistory/99DBD74F5DAE064909',
+            'https://t1.daumcdn.net/cfile/tistory/99E0B03D5DA9917738',
+            'https://t1.daumcdn.net/cfile/tistory/99E4464E5DAF36960E',
+            'https://t1.daumcdn.net/cfile/tistory/99EBD3495DAF1CBF16',
+            'https://t1.daumcdn.net/cfile/tistory/99FEC7335DB5A5CB33',
+        ];
+        
+        let bgmPlaying = false;
+        let hasInteracted = false;
+        
+        const musicIcon = {
+            on: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
+            off: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-x"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`
+        }
+
+        function playRandomBgm() {
+            if (!bgmUrls.length) return;
+            bgm.src = bgmUrls[randInt(bgmUrls.length)];
+            bgm.play().catch(e => {
+                console.error("BGM 재생 오류:", e);
+                bgmPlaying = false;
+                updateBgmButton();
+            });
+        }
+        
+        function updateBgmButton() {
+            const btn = $('#bgm-toggle-btn');
+            const icon = $('#bgm-icon');
+
+            if (bgmPlaying) {
+                if(icon) icon.innerHTML = musicIcon.on;
+            } else {
+                if(icon) icon.innerHTML = musicIcon.off;
+            }
+        }
+
+        bgm.addEventListener('ended', playRandomBgm);
+
+        function toggleBgm() {
+            hasInteracted = true;
+            if (bgmPlaying) {
+                bgm.pause();
+                bgmPlaying = false;
+            } else {
+                bgmPlaying = true;
+                playRandomBgm();
+            }
+            updateBgmButton();
+        }
+        
+        const bgmToggleBtn = $('#bgm-toggle-btn');
+        const settingsBtn = $('#settings-btn');
+        const settingsModal = $('#settings-modal');
+        const settingsCloseBtn = $('#settings-close-btn');
+        const bgmVolumeControl = $('#bgm-volume');
+        const sfxVolumeControl = $('#sfx-volume');
+        
+        bgmVolumeControl.value = localStorage.getItem('bgmVolume') || 0.5;
+        sfxVolumeControl.value = localStorage.getItem('sfxVolume') || 0.5;
+        bgm.volume = bgmVolumeControl.value;
+        sfxCorrect.volume = sfxIncorrect.volume = sfxClear.volume = sfxVolumeControl.value;
+
+        bgmVolumeControl.addEventListener('input', (e) => {
+            bgm.volume = e.target.value;
+            localStorage.setItem('bgmVolume', e.target.value);
+        });
+
+        sfxVolumeControl.addEventListener('input', (e) => {
+            sfxCorrect.volume = sfxIncorrect.volume = sfxClear.volume = e.target.value;
+            localStorage.setItem('sfxVolume', e.target.value);
+        });
+
+        bgmToggleBtn.addEventListener('click', toggleBgm);
+        
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.remove('hidden');
+        });
+
+        settingsCloseBtn.addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+        });
+
+        // 사용자가 상호작용한 후 배경 음악 자동 재생
+        document.addEventListener('click', () => {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                bgmPlaying = true;
+                playRandomBgm();
+                updateBgmButton();
+            }
+        }, { once: true });
+
 
         /* 테스트 로직 */
         function getSelectedOption(groupElement) {
@@ -789,7 +1026,10 @@
             fb.textContent = `시간 초과! 정답: ${quiz.type === 'char-to-romaji' || quiz.type === 'char-input' ? q.item.romaji : q.item.kana}`;
             fb.classList.add('text-red-500');
 
-            setTimeout(nextQuestion, 700);
+            // 오답 애니메이션
+            playFeedbackAnimation(false);
+            
+            setTimeout(nextQuestion, 1500); // Wait longer for animation
         }
 
         function submitAnswer(value, timeout = false) {
@@ -825,12 +1065,15 @@
                 fb.textContent = '정답!';
                 fb.classList.add('text-green-500');
             } else {
-                fb.textContent = `오답! 정답: ${quiz.type === 'char-to-romaji' || quiz.type === 'char-input' ? q.item.romaji : q.item.kana}`;
+                fb.textContent = '오답!'; // 오답 메시지 간소화
                 fb.classList.add('text-red-500');
                 if (quiz.wrongs.find(w => w.kana === q.item.kana) === undefined) {
                     quiz.wrongs.push(q.item);
                 }
             }
+            
+            // 정답/오답 애니메이션과 사운드 재생
+            playFeedbackAnimation(correct);
 
             $$('#choices .btn').forEach(btn => {
                 if (quiz.type === 'char-to-romaji') {
@@ -843,7 +1086,40 @@
                 btn.disabled = true;
             });
             if (quiz.type === 'char-input') $('#btn-submit').disabled = true;
-            setTimeout(nextQuestion, 700);
+            setTimeout(nextQuestion, 1500); // Wait longer for animation
+        }
+        
+        function playFeedbackAnimation(isCorrect) {
+            const feedbackEl = $('#feedback-image');
+            const audioEl = isCorrect ? sfxCorrect : sfxIncorrect;
+            const containerEl = $('#screen-test');
+
+            feedbackEl.src = isCorrect ? 'https://hirago.nmate.kr/images/correct.png' : 'https://hirago.nmate.kr/images/wrong.png';
+            feedbackEl.classList.remove('scale-0', 'opacity-0');
+            
+            if (containerEl) {
+                 if (isCorrect) {
+                    containerEl.classList.remove('incorrect-animation');
+                    containerEl.classList.add('correct-animation');
+                } else {
+                    containerEl.classList.remove('correct-animation');
+                    containerEl.classList.add('incorrect-animation');
+                }
+            } else {
+                console.error("Error: #screen-test element not found.");
+            }
+
+            feedbackEl.classList.add('visible');
+
+            audioEl.currentTime = 0;
+            audioEl.play().catch(e => console.error("SFX 재생 오류:", e));
+            
+            setTimeout(() => {
+                feedbackEl.classList.remove('visible');
+                if (containerEl) {
+                    containerEl.classList.remove('correct-animation', 'incorrect-animation');
+                }
+            }, 1000);
         }
 
         function nextQuestion() {
@@ -852,7 +1128,10 @@
             if (quiz.idx >= quiz.questions.length) {
                 finishQuiz();
             } else {
-                $('#feedback').classList.remove('text-green-500', 'text-red-500');
+                const fb = $('#feedback');
+                if (fb) {
+                     fb.classList.remove('text-green-500', 'text-red-500');
+                }
                 renderQuestion();
             }
         }
@@ -876,19 +1155,50 @@
             }
             
             $('#res-score').textContent = `${correctCnt} / ${total}`;
-            $('#res-acc').textContent = `${Math.round((correctCnt / total) * 100)}%`;
+            const accuracy = total ? Math.round((correctCnt / total) * 100) : 0;
+            $('#res-acc').textContent = `${accuracy}%`;
             $('#res-avg').textContent = formatMs(avg);
             $('#res-total').textContent = formatMs(used);
+            
+            // Star animation logic
+            const star1 = $('#star-1');
+            const star2 = $('#star-2');
+            const star3 = $('#star-3');
+
+            // Reset all star states
+            star1.classList.remove('visible');
+            star2.classList.remove('visible');
+            star3.classList.remove('visible');
+            
+            // Apply visible class based on accuracy
+            if (accuracy >= 90) {
+                star1.classList.add('visible');
+                star2.classList.add('visible');
+                star3.classList.add('visible');
+                sfxClear.play();
+            } else if (accuracy >= 70) {
+                star1.classList.add('visible');
+                star2.classList.add('visible');
+                sfxClear.play();
+            } else if (accuracy >= 50) {
+                star2.classList.add('visible');
+                sfxClear.play();
+            }
+            
             const wl = $('#wrong-list');
-            wl.innerHTML = '';
+            if (wl) {
+                 wl.innerHTML = '';
+            }
 
             const wrongsToDisplay = quiz.wrongs.slice();
             
             if (wrongsToDisplay.length === 0) {
-                if (quiz.wrongOnly) {
-                    wl.innerHTML = '<p class="text-center text-gray-500">오답 목록의 모든 문제를 맞히셨습니다! 대단해요!</p>';
-                } else {
-                    wl.innerHTML = '<p class="text-center text-gray-500">틀린 문제가 없습니다. 대단해요!</p>';
+                if (wl) {
+                    if (quiz.wrongOnly) {
+                        wl.innerHTML = '<p class="text-center text-gray-500">오답 목록의 모든 문제를 맞히셨습니다! 대단해요!</p>';
+                    } else {
+                        wl.innerHTML = '<p class="text-center text-gray-500">틀린 문제가 없습니다. 대단해요!</p>';
+                    }
                 }
             } else {
                 wrongsToDisplay.forEach((item) => {
@@ -900,19 +1210,25 @@
                       <span class="text-sm font-medium text-red-700">${item.kana} (${item.romaji})</span>
                       <span class="text-sm text-red-500">오답: <span class="font-semibold">${userAns || '미응답'}</span></span>
                     `;
-                    wl.appendChild(div);
+                    if (wl) {
+                         wl.appendChild(div);
+                    }
                 });
             }
 
             const btnWrongRetake = $('#btn-wrong-retake');
-            if (quiz.wrongs.length > 0) {
-                btnWrongRetake.style.display = 'inline-flex';
-            } else {
-                btnWrongRetake.style.display = 'none';
+            if (btnWrongRetake) {
+                if (quiz.wrongs.length > 0) {
+                    btnWrongRetake.style.display = 'inline-flex';
+                } else {
+                    btnWrongRetake.style.display = 'none';
+                }
             }
             
             const ra = $('#range-acc-list');
-            ra.innerHTML = '';
+            if (ra) {
+                 ra.innerHTML = '';
+            }
             const byRow = new Map(),
                 byCol = new Map();
             quiz.questions.forEach(q => {
@@ -936,21 +1252,30 @@
                 el.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'rounded-lg', 'bg-gray-50');
                 const acc = v.t ? Math.round((v.c / v.t) * 100) : 0;
                 el.innerHTML = `<span class="text-sm font-medium text-gray-700">${name}</span><span class="text-sm font-semibold text-gray-900">${acc}% (${v.c}/${v.t})</span>`;
-                ra.appendChild(el);
+                if (ra) {
+                     ra.appendChild(el);
+                }
             });
             [...byCol.entries()].forEach(([name, v]) => {
                 const el = document.createElement('div');
                 el.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'rounded-lg', 'bg-gray-50');
                 const acc = v.t ? Math.round((v.c / v.t) * 100) : 0;
                 el.innerHTML = `<span class="text-sm font-medium text-gray-700">${name}</span><span class="text-sm font-semibold text-gray-900">${acc}% (${v.c}/${v.t})</span>`;
-                ra.appendChild(el);
+                if (ra) {
+                    ra.appendChild(el);
+                }
             });
-            $('#screen-test').style.display = 'none';
-            $('#screen-result').style.display = 'block';
-            $('#screen-main').style.display = 'none';
-            $('#header').classList.remove('header-hidden');
-            document.getElementById('mobile-menu').classList.remove('open');
-            document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            
+            const screenTest = $('#screen-test');
+            const screenResult = $('#screen-result');
+            const screenMain = $('#screen-main');
+            const header = $('#header');
+
+            if (screenTest) screenTest.style.display = 'none';
+            if (screenResult) screenResult.style.display = 'block';
+            if (screenMain) screenMain.style.display = 'none';
+            if (header) header.classList.remove('header-hidden');
+            
             updateWrongOnlyButtonState();
         }
 
@@ -1037,9 +1362,13 @@
                 showModal('선택된 범위에 유효한 글자가 없습니다.');
                 return;
             }
-            $('#screen-main').style.display = 'none';
-            $('#screen-test').style.display = 'block';
-            $('#screen-result').style.display = 'none';
+            const screenMain = $('#screen-main');
+            const screenTest = $('#screen-test');
+            const screenResult = $('#screen-result');
+
+            if (screenMain) screenMain.style.display = 'none';
+            if (screenTest) screenTest.style.display = 'block';
+            if (screenResult) screenResult.style.display = 'none';
             document.body.style.paddingTop = '6rem';
             
             renderQuestion();
@@ -1069,6 +1398,7 @@
         window.onload = () => {
             renderGrid();
             updateSelectionUI();
+            updateBgmButton();
         };
     </script>
 </body>
