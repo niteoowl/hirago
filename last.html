@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <title>HIRAGO! - 쉽고 빠른 히라가나 외우기</title>
+    <meta name=”description” content=”쉽고 빠르게 히라가나를 외우고, 테스트 하고싶다면? HIRAGO!”>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4390848046914727"
+     crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --color-bg: #ffffff;
+            --color-surface: #ffffff;
+            --color-border: #d1d5db;
+            --color-text: #1f2937;
+            --color-muted: #6b7280;
+            --color-primary: #3b82f6;
+            --color-primary-light: #eff6ff;
+            --color-primary-dark: #2563eb;
+            --color-green: #22c55e;
+            --color-red: #ef4444;
+            --color-yellow: #f59e0b;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+        }
+
+        .card {
+            background-color: var(--color-surface);
+            border-radius: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid transparent;
+        }
+
+        .btn.btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn.btn-primary:hover {
+            background-color: var(--color-primary-dark);
+        }
+
+        .btn.btn-ghost {
+            background-color: transparent;
+            border-color: var(--color-border);
+            color: var(--color-muted);
+        }
+
+        .btn.btn-ghost:hover {
+            background-color: #f9fafb;
+            color: var(--color-text);
+        }
+
+        .btn.btn-success {
+            background-color: var(--color-green);
+            color: white;
+        }
+
+        .btn.btn-danger {
+            background-color: var(--color-red);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .option-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            transition-colors: all 0.2s ease-in-out;
+            border: 1px solid var(--color-border);
+            background-color: var(--color-surface);
+        }
+
+        .option-btn.active {
+            background-color: var(--color-primary-light);
+            color: var(--color-primary-dark);
+            border-color: var(--color-primary);
+            font-weight: 600;
+        }
+
+        .tag {
+            @apply px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold;
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 9999px;
+            background-color: var(--color-border);
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            transition: width 0.4s ease-in-out;
+        }
+
+        .grid-container {
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .hiragana-grid-cell {
+            border: 1px solid var(--color-border);
+        }
+
+        .hiragana-grid-row-header,
+        .hiragana-grid-col-header {
+            background-color: white;
+            border: 1px solid var(--color-border);
+            font-weight: bold;
+            color: #9ca3af;
+        }
+
+        .hiragana-grid-cell {
+            padding: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .hiragana-grid-cell.selected {
+            background-color: var(--color-primary-light);
+            color: var(--color-primary-dark);
+        }
+
+        .hiragana-grid-cell:hover {
+            background-color: #f9fafb;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        td, th {
+            padding: 0;
+        }
+        
+        .header-hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="pb-12">
+    <!-- Header section, controls navigation and branding -->
+    <header id="header" class="fixed top-0 w-full z-40 bg-white transition-all duration-500 ease-in-out border-b border-gray-200">
+        <div class="max-w-4xl mx-auto py-4 px-4 md:px-6 lg:px-8 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <img src="https://i.postimg.cc/MKjSWxqq/9.png" alt="HIRAGO! logo" class="h-8">
+            </div>
+
+            <nav class="hidden sm:flex items-center space-x-4"></nav>
+
+            <div class="sm:hidden">
+                <button id="mobile-menu-btn" class="text-gray-500 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <nav id="mobile-menu" class="sm:hidden fixed inset-y-0 right-0 w-64 bg-white p-4 z-50 transform translate-x-full">
+            <div class="flex justify-end mb-4">
+                <button id="mobile-menu-close-btn" class="text-gray-500 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex flex-col space-y-4"></div>
+        </nav>
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+    </header>
+    <!-- Main content container, responsive padding adjusted -->
+    <div class="pt-20 px-0 md:px-8 lg:px-12 flex items-center justify-center">
+        <div class="max-w-screen-md w-full mx-auto space-y-8">
+            <div id="screen-main" class="card p-8 md:p-10 space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">테스트 범위 선택</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="col-span-1 md:col-span-2 lg:col-span-3">
+                            <div class="grid-container">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-sm font-bold text-gray-700">50음도표</h3>
+                                    <div class="flex items-center space-x-2">
+                                        <button id="btn-clear" class="btn btn-ghost text-xs py-1 px-3">선택 해제</button>
+                                        <div class="flex items-center space-x-1">
+                                            <input type="checkbox" id="toggle-audio" class="form-checkbox h-4 w-4 text-blue-600 rounded focus:ring-blue-500">
+                                            <label for="toggle-audio" class="text-xs text-gray-600">음성 재생</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm sm:text-base border-collapse text-center" id="hiragana-grid">
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">테스트 옵션</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">문제 유형</label>
+                            <div class="flex flex-wrap gap-2" id="q-type-options">
+                                <button class="option-btn active" data-value="char-to-romaji">문자 → 발음 (4지선다)</button>
+                                <button class="option-btn" data-value="romaji-to-char">발음 → 문자 (4지선다)</button>
+                                <button class="option-btn" data-value="char-input">문자 → 발음 (주관식)</button>
+                                <button class="option-btn" data-value="audio-to-char">소리 → 문자 (4지선다)</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">시간 제한</label>
+                            <div class="flex flex-wrap gap-2" id="q-timer-options">
+                                <button class="option-btn active" data-value="none">제한 없음</button>
+                                <button class="option-btn" data-value="per10">문제당 10초</button>
+                                <button class="option-btn" data-value="all60">전체 60초</button>
+                                <button class="option-btn" data-value="custom">사용자 지정</button>
+                            </div>
+                            <div id="custom-timer-input" class="mt-2" style="display: none;">
+                                <input type="number" id="custom-time-value" placeholder="시간(초) 입력" class="w-full p-2 border rounded-md">
+                                <select id="custom-time-mode" class="mt-2 w-full p-2 border rounded-md">
+                                    <option value="per">문제당</option>
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-end items-center gap-4 pt-6">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button id="btn-start" class="btn btn-primary w-full sm:w-auto">테스트 시작</button>
+                        <button id="btn-wrong-only" class="btn btn-ghost w-full sm:w-auto" disabled>오답 모드</button>
+                    </div>
+                </div>
+            </div>
+            <div id="screen-test" class="card p-8 md:p-10" style="display:none">
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm font-medium text-gray-500">
+                            <span id="q-index">1</span> / <span id="q-total">10</span>
+                        </div>
+                        <div class="text-sm font-medium text-gray-500">
+                            남은 시간: <span id="timer-text">-</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+                    </div>
+                    <h3 id="q-stem" class="text-4xl font-extrabold text-center text-gray-900 my-8">문제 표시</h3>
+                    <div id="choices" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                    <div id="input-row" class="flex items-center justify-center gap-4" style="display:none">
+                        <input id="text-answer" type="text" placeholder="로마자 입력 (예: a, ka, shi)" class="w-full sm:w-1/2 p-3 text-lg text-center rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="btn-submit" class="btn btn-primary">제출</button>
+                    </div>
+                    <div class="flex items-center justify-between pt-4">
+                        <div id="feedback" class="text-sm font-medium"></div>
+                        <div class="flex space-x-2">
+                            <button id="btn-audio-play" class="btn btn-ghost py-2 px-3 text-sm">오디오 재생</button>
+                            <button id="btn-skip" class="btn btn-ghost py-2 px-3 text-sm">건너뛰기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="screen-result" class="card p-8 md:p-10 space-y-6" style="display:none">
+                <h2 class="text-xl font-bold text-center text-gray-800">테스트 결과</h2>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <p class="text-sm text-gray-500">총점</p>
+                        <p id="res-score" class="text-xl font-bold mt-1 text-gray-900">0 / 0</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <p class="text-sm text-gray-500">정답률</p>
+                        <p id="res-acc" class="text-xl font-bold mt-1 text-gray-900">0%</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <p class="text-sm text-gray-500">평균 시간</p>
+                        <p id="res-avg" class="text-xl font-bold mt-1 text-gray-900">-</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <p class="text-sm text-gray-500">총 소요</p>
+                        <p id="res-total" class="text-xl font-bold mt-1 text-gray-900">-</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-gray-800">틀린 문제 다시보기</h3>
+                    <div class="space-y-2 max-h-64 overflow-y-auto pr-2" id="wrong-list"></div>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-gray-800">범위별 정답률</h3>
+                    <div class="space-y-2 max-h-48 overflow-y-auto pr-2" id="range-acc-list"></div>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+                    <button id="btn-retry" class="btn btn-success w-full sm:w-auto">같은 범위로 재시험</button>
+                    <button id="btn-wrong-retake" class="btn btn-primary w-full sm:w-auto">오답만 재시험</button>
+                    <button id="btn-new-range" class="btn btn-ghost w-full sm:w-auto">다른 범위 선택</button>
+                </div>
+            </div>
+        </div>
+        <audio id="audio" preload="none"></audio>
+    </div>
+    <div class="w-full text-center mt-8">
+        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm">
+            <span id="sel-count" class="font-semibold text-gray-700">선택된 글자: 0</span>
+            <div id="sel-pills" class="flex flex-wrap gap-1 sm:gap-2"></div>
+        </div>
+    </div>
+    <footer class="mt-8 text-center text-gray-500 text-xs">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-2">
+            <img src="https://i.postimg.cc/MKjSWxqq/9.png" alt="HIRAGO! 로고" class="h-6">
+            <img src="https://i.postimg.cc/xdgrs1yy/10.png" alt="N-MATE 로고" class="h-6">
+        </div>
+        <p class="mt-2">&copy; 2025. HIRAGO! All rights reserved. HIRAGO!는 N-MATE가 제작한 일본어 학습 사이트입니다.</p>
+    </footer>
+
+    <script>
+        /* 네비게이션 로직 */
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuCloseBtn = document.getElementById('mobile-menu-close-btn');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.add('open');
+                mobileMenuOverlay.classList.remove('hidden');
+            });
+            mobileMenuCloseBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                mobileMenuOverlay.classList.add('hidden');
+            });
+            mobileMenuOverlay.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                mobileMenuOverlay.classList.add('hidden');
+            });
+        });
+        
+        /* 데이터 정의 */
+        const rows = [
+            { key: 'a', name: 'あ행', kana: ['あ', 'い', 'う', 'え', 'お'], romaji: ['a', 'i', 'u', 'e', 'o'] },
+            { key: 'ka', name: 'か행', kana: ['か', 'き', 'く', 'け', 'こ'], romaji: ['ka', 'ki', 'ku', 'ke', 'ko'] },
+            { key: 'sa', name: 'さ행', kana: ['さ', 'し', 'す', 'せ', 'そ'], romaji: ['sa', 'shi', 'su', 'se', 'so'] },
+            { key: 'ta', name: 'た행', kana: ['た', 'ち', 'つ', 'て', 'と'], romaji: ['ta', 'chi', 'tsu', 'te', 'to'] },
+            { key: 'na', name: 'な행', kana: ['な', 'に', 'ぬ', 'ね', 'の'], romaji: ['na', 'ni', 'nu', 'ne', 'no'] },
+            { key: 'ha', name: 'は행', kana: ['は', 'ひ', 'ふ', 'へ', 'ほ'], romaji: ['ha', 'hi', 'fu', 'he', 'ho'] },
+            { key: 'ma', name: 'ま행', kana: ['ま', 'み', 'む', 'め', 'も'], romaji: ['ma', 'mi', 'mu', 'me', 'mo'] },
+            { key: 'ya', name: 'や행', kana: ['や', '', 'ゆ', '', 'よ'], romaji: ['ya', '', 'yu', '', 'yo'] },
+            { key: 'ra', name: 'ら행', kana: ['ら', 'り', 'る', 'れ', 'ろ'], romaji: ['ra', 'ri', 'ru', 're', 'ro'] },
+            { key: 'wa', name: 'わ행', kana: ['わ', '', '', '', 'を'], romaji: ['wa', '', '', '', 'wo'] },
+            { key: 'n', name: 'ん행', kana: ['ん'], romaji: ['n'] },
+        ];
+        const cols = [
+            { key: 'a-col', name: '아단', idx: 0, romaji: 'a' },
+            { key: 'i-col', name: '이단', idx: 1, romaji: 'i' },
+            { key: 'u-col', name: '우단', idx: 2, romaji: 'u' },
+            { key: 'e-col', name: '에단', idx: 3, romaji: 'e' },
+            { key: 'o-col', name: '오단', idx: 4, romaji: 'o' },
+        ];
+
+        function buildAllItems() {
+            const items = [];
+            rows.forEach((r, ri) => {
+                r.kana.forEach((k, ci) => {
+                    const rom = r.romaji[ci] || '';
+                    if (!k || !rom) return;
+                    items.push({ row: r.key, rowName: r.name, colIdx: ci, colName: cols[ci] ? cols[ci].name : '단독', kana: k, romaji: rom });
+                });
+            });
+            return items;
+        }
+        const ALL_ITEMS = buildAllItems();
+
+        /* 상태 */
+        let selectedKeys = new Set();
+        let audioOn = false;
+        let quiz = null;
+        let lastSessionWrong = [];
+        let tickHandle = null,
+            qStartAt = 0;
+        
+        /* 유틸 */
+        const $ = sel => document.querySelector(sel);
+        const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+        function randInt(n) {
+            return Math.floor(Math.random() * n);
+        }
+
+        function shuffle(a) {
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = randInt(i + 1);
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function formatMs(ms) {
+            if (ms === null || ms === undefined) return '-';
+            const s = Math.round(ms / 1000);
+            if (s < 60) return `${s}초`;
+            const m = Math.floor(s / 60),
+                r = s % 60;
+            return `${m}분 ${r}초`;
+        }
+
+        /* 50음도 UI */
+        const grid = $('#hiragana-grid');
+
+        function renderGrid() {
+            grid.innerHTML = '';
+            const headerRow = grid.insertRow();
+            headerRow.insertCell().outerHTML = '<th class="hiragana-grid-col-header w-[50px]"></th>';
+            cols.forEach(c => {
+                const th = document.createElement('th');
+                th.classList.add('hiragana-grid-col-header', 'p-3', 'font-medium', 'text-gray-500', 'cursor-pointer');
+                th.textContent = c.name.charAt(0);
+                th.title = c.name;
+                th.addEventListener('click', () => {
+                    toggleCol(c.idx);
+                    updateSelectionUI();
+                });
+                headerRow.appendChild(th);
+            });
+            rows.forEach(r => {
+                const row = grid.insertRow();
+                const th = document.createElement('th');
+                th.classList.add('hiragana-grid-row-header', 'p-3', 'text-xs', 'font-bold', 'text-gray-500', 'cursor-pointer');
+                th.textContent = r.name;
+                th.addEventListener('click', () => {
+                    toggleRow(r.key);
+                    updateSelectionUI();
+                });
+                row.appendChild(th);
+                r.kana.forEach((k, ci) => {
+                    const cell = row.insertCell();
+                    cell.classList.add('hiragana-grid-cell', 'p-3', 'text-lg', 'font-medium', 'text-gray-900', 'rounded-lg');
+                    if (!k) {
+                        cell.classList.add('text-gray-400');
+                        cell.textContent = '-';
+                        cell.style.cursor = 'default';
+                    } else {
+                        cell.textContent = k;
+                        cell.title = r.romaji[ci];
+                        cell.style.cursor = 'pointer';
+                        if (selectedKeys.has(`${r.key}-${ci}-${k}`)) cell.classList.add('selected');
+                        cell.addEventListener('click', () => {
+                            toggleCell(`${r.key}-${ci}-${k}`);
+                            if (audioOn) playAudioFor(r.romaji[ci]);
+                            updateSelectionUI();
+                        });
+                    }
+                });
+            });
+        }
+
+        function isRowSelected(rowKey) {
+            const rowItems = ALL_ITEMS.filter(i => i.row === rowKey);
+            if (rowItems.length === 0) return false;
+            return rowItems.every(i => selectedKeys.has(`${i.row}-${i.colIdx}-${i.kana}`));
+        }
+
+        function isColSelected(colIdx) {
+            const colItems = ALL_ITEMS.filter(i => i.colIdx === colIdx);
+            if (colItems.length === 0) return false;
+            return colItems.every(i => selectedKeys.has(`${i.row}-${i.colIdx}-${i.kana}`));
+        }
+
+        function toggleCell(key) {
+            if (selectedKeys.has(key)) selectedKeys.delete(key);
+            else selectedKeys.add(key);
+        }
+
+        function toggleRow(rowKey) {
+            const keysInRow = ALL_ITEMS.filter(i => i.row === rowKey).map(i => `${i.row}-${i.colIdx}-${i.kana}`);
+            const allSelected = keysInRow.every(k => selectedKeys.has(k));
+            if (allSelected) {
+                keysInRow.forEach(k => selectedKeys.delete(k));
+            } else {
+                keysInRow.forEach(k => selectedKeys.add(k));
+            }
+        }
+
+        function toggleCol(colIdx) {
+            const keysInCol = ALL_ITEMS.filter(i => i.colIdx === colIdx);
+            const allSelected = keysInCol.every(i => selectedKeys.has(`${i.row}-${i.colIdx}-${i.kana}`));
+            if (allSelected) {
+                keysInCol.forEach(i => selectedKeys.delete(`${i.row}-${i.colIdx}-${i.kana}`));
+            } else {
+                keysInCol.forEach(i => selectedKeys.add(`${i.row}-${i.colIdx}-${i.kana}`));
+            }
+        }
+
+        function currentSelectionItems() {
+            const set = new Set([...selectedKeys]);
+            return ALL_ITEMS.filter(i => set.has(`${i.row}-${i.colIdx}-${i.kana}`));
+        }
+
+        function updateSelectionUI() {
+            renderGrid();
+            const items = currentSelectionItems();
+            $('#sel-count').textContent = `선택된 글자: ${items.length}`;
+            const pills = $('#sel-pills');
+            pills.innerHTML = '';
+            const rowMap = new Map(),
+                colMap = new Map();
+            items.forEach(i => {
+                rowMap.set(i.rowName, (rowMap.get(i.rowName) || 0) + 1);
+                colMap.set(i.colName, (colMap.get(i.colName) || 0) + 1);
+            });
+            [...rowMap.entries()].forEach(([n, c]) => {
+                const el = document.createElement('span');
+                el.className = 'tag';
+                el.textContent = `${n}`;
+                pills.appendChild(el);
+            });
+            [...colMap.entries()].forEach(([n, c]) => {
+                const el = document.createElement('span');
+                el.className = 'tag';
+                el.textContent = `${n}`;
+                pills.appendChild(el);
+            });
+            
+            updateWrongOnlyButtonState();
+        }
+        
+        function updateWrongOnlyButtonState() {
+            const btn = $('#btn-wrong-only');
+            if (lastSessionWrong.length > 0) {
+                btn.disabled = false;
+                btn.textContent = `오답 모드 (${lastSessionWrong.length})`;
+            } else {
+                btn.disabled = true;
+                btn.textContent = '오답 모드';
+            }
+        }
+        
+        $('#btn-clear').addEventListener('click', () => {
+            selectedKeys.clear();
+            updateSelectionUI();
+        });
+        $('#toggle-audio').addEventListener('change', e => {
+            audioOn = e.target.checked;
+        });
+
+        /* 오디오 (MP3) */
+        const audio = $('#audio');
+        const audioMap = {
+            'a': 'https://0.tqn.com/z/g/japanese/library/media/audio/a.mp3',
+            'i': 'https://0.tqn.com/z/g/japanese/library/media/audio/i.mp3',
+            'u': 'https://0.tqn.com/z/g/japanese/library/media/audio/u.mp3',
+            'e': 'https://0.tqn.com/z/g/japanese/library/media/audio/e.mp3',
+            'o': 'https://0.tqn.com/z/g/japanese/library/media/audio/o.mp3',
+            'ka': 'https://0.tqn.com/z/g/japanese/library/media/audio/ka.mp3',
+            'ki': 'https://0.tqn.com/z/g/japanese/library/media/audio/ki.mp3',
+            'ku': 'https://0.tqn.com/z/g/japanese/library/media/audio/ku.mp3',
+            'ke': 'https://0.tqn.com/z/g/japanese/library/media/audio/ke.mp3',
+            'ko': 'https://0.tqn.com/z/g/japanese/library/media/audio/ko.mp3',
+            'sa': 'https://0.tqn.com/z/g/japanese/library/media/audio/sa.mp3',
+            'shi': 'https://0.tqn.com/z/g/japanese/library/media/audio/shi.mp3',
+            'su': 'https://0.tqn.com/z/g/japanese/library/media/audio/su.mp3',
+            'se': 'https://0.tqn.com/z/g/japanese/library/media/audio/se.mp3',
+            'so': 'https://0.tqn.com/z/g/japanese/library/media/audio/so.mp3',
+            'ta': 'https://0.tqn.com/z/g/japanese/library/media/audio/ta.mp3',
+            'chi': 'https://0.tqn.com/z/g/japanese/library/media/audio/chi.mp3',
+            'tsu': 'https://0.tqn.com/z/g/japanese/library/media/audio/tsu.mp3',
+            'te': 'https://0.tqn.com/z/g/japanese/library/media/audio/te.mp3',
+            'to': 'https://0.tqn.com/z/g/japanese/library/media/audio/to.mp3',
+            'na': 'https://0.tqn.com/z/g/japanese/library/media/audio/na.mp3',
+            'ni': 'https://0.tqn.com/z/g/japanese/library/media/audio/ni.mp3',
+            'nu': 'https://0.tqn.com/z/g/japanese/library/media/audio/nu.mp3',
+            'ne': 'https://0.tqn.com/z/g/japanese/library/media/audio/ne.mp3',
+            'ha': 'https://0.tqn.com/z/g/japanese/library/media/audio/ha.mp3',
+            'hi': 'https://0.tqn.com/z/g/japanese/library/media/audio/hi.mp3',
+            'fu': 'https://0.tqn.com/z/g/japanese/library/media/audio/fu.mp3',
+            'he': 'https://0.tqn.com/z/g/japanese/library/media/audio/he.mp3',
+            'ho': 'https://0.tqn.com/z/g/japanese/library/media/audio/ho.mp3',
+            'ma': 'https://0.tqn.com/z/g/japanese/library/media/audio/ma.mp3',
+            'mi': 'https://0.tqn.com/z/g/japanese/library/media/audio/mi.mp3',
+            'mu': 'https://0.tqn.com/z/g/japanese/library/media/audio/mu.mp3',
+            'me': 'https://0.tqn.com/z/g/japanese/library/media/audio/me.mp3',
+            'mo': 'https://0.tqn.com/z/g/japanese/library/media/audio/mo.mp3',
+            'ya': 'https://0.tqn.com/z/g/japanese/library/media/audio/ya.mp3',
+            'yu': 'https://0.tqn.com/z/g/japanese/library/media/audio/yu.mp3',
+            'yo': 'https://0.tqn.com/z/g/japanese/library/media/audio/yo.mp3',
+            'ra': 'https://0.tqn.com/z/g/japanese/library/media/audio/ra.mp3',
+            'ri': 'https://0.tqn.com/z/g/japanese/library/media/audio/ri.mp3',
+            'ru': 'https://0.tqn.com/z/g/japanese/library/media/audio/ru.mp3',
+            're': 'https://0.tqn.com/z/g/japanese/library/media/audio/re.mp3',
+            'ro': 'https://0.tqn.com/z/g/japanese/library/media/audio/ro.mp3',
+            'wa': 'https://0.tqn.com/z/g/japanese/library/media/audio/wa.mp3',
+            'wo': 'https://0.tqn.com/z/g/japanese/library/media/audio/wo.mp3',
+            'n': 'https://0.tqn.com/z/g/japanese/library/media/audio/n.mp3',
+        };
+
+        function playAudioFor(romaji) {
+            const audioUrl = audioMap[romaji];
+            if (audioUrl) {
+                audio.src = audioUrl;
+                audio.play().catch(e => console.error("오디오 재생 오류:", e));
+            } else {
+                console.warn(`오디오를 찾을 수 없습니다: ${romaji}`);
+            }
+        }
+
+        /* 테스트 로직 */
+        function getSelectedOption(groupElement) {
+            const activeBtn = groupElement.querySelector('.option-btn.active');
+            return activeBtn ? activeBtn.dataset.value : null;
+        }
+
+        function makePoolFromSelection() {
+            const sel = currentSelectionItems();
+            return sel.length ? sel : ALL_ITEMS.slice();
+        }
+
+        function buildQuiz({
+            type,
+            timerMode,
+            timerValue = null,
+            mode,
+            wrongOnly = false
+        }) {
+            const pool = wrongOnly ? lastSessionWrong :
+                (mode === 'randomAll' ? ALL_ITEMS.slice() : makePoolFromSelection());
+            let questions = shuffle(pool);
+            questions = questions.slice(0, questions.length).map(item => {
+                const distractors = shuffle(ALL_ITEMS.filter(i => i.kana !== item.kana)).slice(0, 3);
+                const optionsChar = shuffle([item.kana, ...distractors.map(d => d.kana)]);
+                const optionsRom = shuffle([item.romaji, ...distractors.map(d => d.romaji)]);
+                return {
+                    item,
+                    optionsChar,
+                    optionsRom,
+                    user: null,
+                    correct: null,
+                    time: 0
+                };
+            });
+            let allLimitMs = null;
+            let perLimitMs = null;
+
+            if (timerMode === 'all60') {
+                allLimitMs = 60000;
+            } else if (timerMode === 'per10') {
+                perLimitMs = 10000;
+            } else if (timerMode === 'custom') {
+                const customTimeMode = $('#custom-time-mode').value;
+                const customTimeValue = parseInt($('#custom-time-value').value, 10);
+                if (customTimeValue > 0) {
+                    if (customTimeMode === 'all') {
+                        allLimitMs = customTimeValue * 1000;
+                    } else {
+                        perLimitMs = customTimeValue * 1000;
+                    }
+                }
+            }
+            quiz = {
+                type,
+                timerMode,
+                startedAt: performance.now(),
+                questions,
+                idx: 0,
+                allLimitMs,
+                perLimitMs,
+                usedMs: 0,
+                wrongs: [],
+                rangeLabel: currentSelectionItems().length ? '선택 범위' : (wrongOnly ? '오답 모드' : '전체'),
+                wrongOnly
+            };
+        }
+
+        function renderQuestion() {
+            if (!quiz) return;
+            const q = quiz.questions[quiz.idx];
+            $('#q-index').textContent = quiz.idx + 1;
+            $('#q-total').textContent = quiz.questions.length;
+            $('#q-stem').textContent = '';
+            $('#choices').innerHTML = '';
+            $('#input-row').style.display = 'none';
+            $('#feedback').textContent = '';
+            $('#progress-bar-fill').style.width = `${((quiz.idx) / quiz.questions.length) * 100}%`;
+            if (quiz.type === 'char-to-romaji') {
+                $('#q-stem').textContent = q.item.kana;
+                q.optionsRom.forEach(v => {
+                    const btn = document.createElement('button');
+                    btn.classList.add('btn', 'btn-ghost', 'text-xl', 'font-bold', 'py-4', 'rounded-xl', 'transition-all');
+                    btn.textContent = v;
+                    btn.addEventListener('click', () => submitAnswer(v));
+                    $('#choices').appendChild(btn);
+                });
+            } else if (quiz.type === 'romaji-to-char' || quiz.type === 'audio-to-char') {
+                $('#q-stem').textContent = (quiz.type === 'audio-to-char') ? '소리를 듣고 해당 문자를 고르세요.' : q.item.romaji;
+                q.optionsChar.forEach(v => {
+                    const btn = document.createElement('button');
+                    btn.classList.add('btn', 'btn-ghost', 'text-4xl', 'font-bold', 'py-4', 'rounded-xl', 'transition-all');
+                    btn.textContent = v;
+                    btn.addEventListener('click', () => submitAnswer(v));
+                    $('#choices').appendChild(btn);
+                });
+                if (quiz.type === 'audio-to-char') playAudioFor(q.item.romaji);
+            } else if (quiz.type === 'char-input') {
+                $('#q-stem').textContent = q.item.kana;
+                $('#input-row').style.display = 'flex';
+                $('#text-answer').value = '';
+                $('#text-answer').focus();
+            }
+            startTicking();
+        }
+
+        function startTicking() {
+            if (tickHandle) cancelAnimationFrame(tickHandle);
+            qStartAt = performance.now();
+            tick();
+        }
+
+        function tick() {
+            const now = performance.now();
+            let remainText = '-';
+            if (quiz.allLimitMs !== null) {
+                const used = now - quiz.startedAt;
+                const left = Math.max(0, quiz.allLimitMs - used);
+                remainText = `${Math.ceil(left / 1000)}초`;
+                if (left <= 0) {
+                    autoSubmitTimeout();
+                    return;
+                }
+            } else if (quiz.perLimitMs !== null) {
+                const used = now - qStartAt;
+                const left = Math.max(0, quiz.perLimitMs - used);
+                remainText = `${Math.ceil(left / 1000)}초`;
+                if (left <= 0) {
+                    autoSubmitTimeout();
+                    return;
+                }
+            }
+            $('#timer-text').textContent = remainText;
+            tickHandle = requestAnimationFrame(tick);
+        }
+
+        function autoSubmitTimeout() {
+            if (tickHandle) cancelAnimationFrame(tickHandle);
+            const q = quiz.questions[quiz.idx];
+            q.user = null;
+            q.correct = false;
+            q.time = quiz.perLimitMs !== null ? quiz.perLimitMs : (performance.now() - qStartAt);
+            
+            if (quiz.wrongs.find(w => w.kana === q.item.kana) === undefined) {
+                 quiz.wrongs.push(q.item);
+            }
+
+            const fb = $('#feedback');
+            fb.textContent = `시간 초과! 정답: ${quiz.type === 'char-to-romaji' || quiz.type === 'char-input' ? q.item.romaji : q.item.kana}`;
+            fb.classList.add('text-red-500');
+
+            setTimeout(nextQuestion, 700);
+        }
+
+        function submitAnswer(value, timeout = false) {
+            if (!quiz) return;
+            if (tickHandle) cancelAnimationFrame(tickHandle);
+            
+            const q = quiz.questions[quiz.idx];
+            const now = performance.now();
+            q.time = now - qStartAt;
+            
+            let correct = false;
+            let userAnswer = value;
+
+            if (timeout) {
+                 console.error("submitAnswer called with timeout=true, which should be handled by autoSubmitTimeout.");
+                 return;
+            }
+
+            if (quiz.type === 'char-input') {
+                userAnswer = ($('#text-answer').value || '').trim().toLowerCase();
+                correct = userAnswer === q.item.romaji;
+            } else if (quiz.type === 'char-to-romaji') {
+                correct = value === q.item.romaji;
+            } else {
+                correct = value === q.item.kana;
+            }
+
+            q.user = userAnswer || value;
+            q.correct = correct;
+            
+            const fb = $('#feedback');
+            if (correct) {
+                fb.textContent = '정답!';
+                fb.classList.add('text-green-500');
+            } else {
+                fb.textContent = `오답! 정답: ${quiz.type === 'char-to-romaji' || quiz.type === 'char-input' ? q.item.romaji : q.item.kana}`;
+                fb.classList.add('text-red-500');
+                if (quiz.wrongs.find(w => w.kana === q.item.kana) === undefined) {
+                    quiz.wrongs.push(q.item);
+                }
+            }
+
+            $$('#choices .btn').forEach(btn => {
+                if (quiz.type === 'char-to-romaji') {
+                    if (btn.textContent === q.item.romaji) btn.classList.replace('btn-ghost', 'btn-success');
+                    if (!correct && btn.textContent === value) btn.classList.replace('btn-ghost', 'btn-danger');
+                } else {
+                    if (btn.textContent === q.item.kana) btn.classList.replace('btn-ghost', 'btn-success');
+                    if (!correct && btn.textContent === value) btn.classList.replace('btn-ghost', 'btn-danger');
+                }
+                btn.disabled = true;
+            });
+            if (quiz.type === 'char-input') $('#btn-submit').disabled = true;
+            setTimeout(nextQuestion, 700);
+        }
+
+        function nextQuestion() {
+            if (!quiz) return;
+            quiz.idx++;
+            if (quiz.idx >= quiz.questions.length) {
+                finishQuiz();
+            } else {
+                $('#feedback').classList.remove('text-green-500', 'text-red-500');
+                renderQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            if (tickHandle) cancelAnimationFrame(tickHandle);
+            const used = performance.now() - quiz.startedAt;
+            const correctCnt = quiz.questions.filter(q => q.correct).length;
+            const total = quiz.questions.length;
+            const avg = quiz.questions.length ? quiz.questions.reduce((a, c) => a + c.time, 0) / quiz.questions.length : 0;
+            
+            if (quiz.wrongOnly) {
+                if (quiz.wrongs.length === 0) {
+                    lastSessionWrong = [];
+                } else {
+                    lastSessionWrong = quiz.wrongs.slice();
+                }
+            } else {
+                const newWrongs = quiz.wrongs.filter(item => !lastSessionWrong.some(w => w.kana === item.kana));
+                lastSessionWrong.push(...newWrongs);
+            }
+            
+            $('#res-score').textContent = `${correctCnt} / ${total}`;
+            $('#res-acc').textContent = `${Math.round((correctCnt / total) * 100)}%`;
+            $('#res-avg').textContent = formatMs(avg);
+            $('#res-total').textContent = formatMs(used);
+            const wl = $('#wrong-list');
+            wl.innerHTML = '';
+
+            const wrongsToDisplay = quiz.wrongs.slice();
+            
+            if (wrongsToDisplay.length === 0) {
+                if (quiz.wrongOnly) {
+                    wl.innerHTML = '<p class="text-center text-gray-500">오답 목록의 모든 문제를 맞히셨습니다! 대단해요!</p>';
+                } else {
+                    wl.innerHTML = '<p class="text-center text-gray-500">틀린 문제가 없습니다. 대단해요!</p>';
+                }
+            } else {
+                wrongsToDisplay.forEach((item) => {
+                    const q = quiz.questions.find(q => q.item.kana === item.kana);
+                    const userAns = q ? q.user : '알 수 없음';
+                    const div = document.createElement('div');
+                    div.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'rounded-lg', 'bg-red-50');
+                    div.innerHTML = `
+                      <span class="text-sm font-medium text-red-700">${item.kana} (${item.romaji})</span>
+                      <span class="text-sm text-red-500">오답: <span class="font-semibold">${userAns || '미응답'}</span></span>
+                    `;
+                    wl.appendChild(div);
+                });
+            }
+
+            const btnWrongRetake = $('#btn-wrong-retake');
+            if (quiz.wrongs.length > 0) {
+                btnWrongRetake.style.display = 'inline-flex';
+            } else {
+                btnWrongRetake.style.display = 'none';
+            }
+            
+            const ra = $('#range-acc-list');
+            ra.innerHTML = '';
+            const byRow = new Map(),
+                byCol = new Map();
+            quiz.questions.forEach(q => {
+                const rKey = q.item.rowName;
+                const cKey = q.item.colName;
+                if (!byRow.has(rKey)) byRow.set(rKey, {
+                    t: 0,
+                    c: 0
+                });
+                if (!byCol.has(cKey)) byCol.set(cKey, {
+                    t: 0,
+                    c: 0
+                });
+                byRow.get(rKey).t++;
+                byRow.get(rKey).c += q.correct ? 1 : 0;
+                byCol.get(cKey).t++;
+                byCol.get(cKey).c += q.correct ? 1 : 0;
+            });
+            [...byRow.entries()].forEach(([name, v]) => {
+                const el = document.createElement('div');
+                el.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'rounded-lg', 'bg-gray-50');
+                const acc = v.t ? Math.round((v.c / v.t) * 100) : 0;
+                el.innerHTML = `<span class="text-sm font-medium text-gray-700">${name}</span><span class="text-sm font-semibold text-gray-900">${acc}% (${v.c}/${v.t})</span>`;
+                ra.appendChild(el);
+            });
+            [...byCol.entries()].forEach(([name, v]) => {
+                const el = document.createElement('div');
+                el.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'rounded-lg', 'bg-gray-50');
+                const acc = v.t ? Math.round((v.c / v.t) * 100) : 0;
+                el.innerHTML = `<span class="text-sm font-medium text-gray-700">${name}</span><span class="text-sm font-semibold text-gray-900">${acc}% (${v.c}/${v.t})</span>`;
+                ra.appendChild(el);
+            });
+            $('#screen-test').style.display = 'none';
+            $('#screen-result').style.display = 'block';
+            $('#screen-main').style.display = 'none';
+            $('#header').classList.remove('header-hidden');
+            document.getElementById('mobile-menu').classList.remove('open');
+            document.getElementById('mobile-menu-overlay').classList.add('hidden');
+            updateWrongOnlyButtonState();
+        }
+
+        /* 이벤트 바인딩 */
+        $$('.option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const customInput = $('#custom-timer-input');
+                if (btn.dataset.value === 'custom') {
+                    customInput.style.display = 'block';
+                } else {
+                    customInput.style.display = 'none';
+                }
+            });
+        });
+        $('#btn-start').addEventListener('click', () => {
+            const type = getSelectedOption($('#q-type-options'));
+            const timer = getSelectedOption($('#q-timer-options'));
+            buildQuiz({
+                type,
+                timerMode: timer,
+                mode: 'selected',
+                wrongOnly: false
+            });
+            startQuiz();
+        });
+        $('#btn-wrong-only').addEventListener('click', () => {
+            if (!lastSessionWrong.length) {
+                showModal('오답이 없습니다. 먼저 테스트를 진행해 주세요.');
+                return;
+            }
+            const type = getSelectedOption($('#q-type-options'));
+            const timer = getSelectedOption($('#q-timer-options'));
+            buildQuiz({
+                type,
+                timerMode: timer,
+                mode: 'wrongOnly',
+                wrongOnly: true
+            });
+            startQuiz();
+        });
+        $('#btn-audio-play').addEventListener('click', () => {
+            if (!quiz) return;
+            playAudioFor(quiz.questions[quiz.idx].item.romaji);
+        });
+        $('#btn-submit').addEventListener('click', () => submitAnswer(null));
+        $('#text-answer').addEventListener('keydown', e => {
+            if (e.key === 'Enter') submitAnswer(null);
+        });
+        $('#btn-skip').addEventListener('click', () => autoSubmitTimeout());
+        $('#btn-retry').addEventListener('click', () => {
+            const prev = quiz;
+            buildQuiz({
+                type: prev.type,
+                timerMode: prev.timerMode,
+                mode: 'selected',
+                wrongOnly: false
+            });
+            startQuiz();
+        });
+        $('#btn-wrong-retake').addEventListener('click', () => {
+            if (!quiz || quiz.wrongs.length === 0) {
+                 showModal('방금 본 테스트에 오답이 없습니다.');
+                return;
+            }
+            const prev = quiz;
+            buildQuiz({
+                type: prev.type,
+                timerMode: prev.timerMode,
+                mode: 'wrongOnly',
+                wrongOnly: true
+            });
+            startQuiz();
+        });
+        $('#btn-new-range').addEventListener('click', () => {
+            $('#screen-result').style.display = 'none';
+            $('#screen-main').style.display = 'block';
+            $('#header').classList.remove('header-hidden');
+        });
+
+        function startQuiz() {
+            if (!quiz.questions.length) {
+                showModal('선택된 범위에 유효한 글자가 없습니다.');
+                return;
+            }
+            $('#screen-main').style.display = 'none';
+            $('#screen-test').style.display = 'block';
+            $('#screen-result').style.display = 'none';
+            document.body.style.paddingTop = '6rem';
+            
+            renderQuestion();
+        }
+
+        function showModal(message) {
+            let modal = document.getElementById('custom-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'custom-modal';
+                modal.classList.add('fixed', 'inset-0', 'bg-gray-600', 'bg-opacity-50', 'flex', 'items-center', 'justify-center', 'z-50', 'p-4');
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 sm:p-8 max-w-sm mx-auto text-center shadow-lg transform transition-all scale-100 opacity-100">
+                        <p id="modal-message" class="text-gray-700 text-lg sm:text-xl mb-6 font-semibold"></p>
+                        <button id="modal-ok-btn" class="btn btn-primary w-full">확인</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                document.getElementById('modal-ok-btn').addEventListener('click', () => {
+                    modal.style.display = 'none';
+                });
+            }
+            document.getElementById('modal-message').textContent = message;
+            modal.style.display = 'flex';
+        }
+
+        window.onload = () => {
+            renderGrid();
+            updateSelectionUI();
+        };
+    </script>
+</body>
+</html>
