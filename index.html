@@ -460,8 +460,8 @@
     </footer>
 
     <script>
-        /* 데이터 정의 */
-        const rows = [
+        // ES5 호환성을 위해 var 사용
+        var rows = [
             { key: 'a', name: 'あ행', kana: ['あ', 'い', 'う', 'え', 'お'], romaji: ['a', 'i', 'u', 'e', 'o'] },
             { key: 'ka', name: 'か행', kana: ['か', 'き', 'く', 'け', 'こ'], romaji: ['ka', 'ki', 'ku', 'ke', 'ko'] },
             { key: 'sa', name: 'さ행', kana: ['さ', 'し', 'す', 'せ', 'そ'], romaji: ['sa', 'shi', 'su', 'se', 'so'] },
@@ -474,7 +474,7 @@
             { key: 'wa', name: 'わ행', kana: ['わ', '', '', '', 'を'], romaji: ['wa', '', '', '', 'wo'] },
             { key: 'n', name: 'ん', kana: ['ん'], romaji: ['n'] },
         ];
-        const cols = [
+        var cols = [
             { key: 'a-col', name: '아단', idx: 0, romaji: 'a' },
             { key: 'i-col', name: '이단', idx: 1, romaji: 'i' },
             { key: 'u-col', name: '우단', idx: 2, romaji: 'u' },
@@ -483,12 +483,12 @@
         ];
 
         function buildAllItems() {
-            const items = [];
+            var items = [];
             if (rows && Array.isArray(rows)) {
-                rows.forEach((r) => {
+                rows.forEach(function(r) {
                     if (r.kana && Array.isArray(r.kana)) {
-                        r.kana.forEach((k, ci) => {
-                            const rom = r.romaji[ci] || '';
+                        r.kana.forEach(function(k, ci) {
+                            var rom = r.romaji[ci] || '';
                             if (!k || !rom) return;
                             items.push({ row: r.key, rowName: r.name, colIdx: ci, colName: cols[ci] ? cols[ci].name : '단독', kana: k, romaji: rom });
                         });
@@ -497,72 +497,74 @@
             }
             return items;
         }
-        const ALL_ITEMS = buildAllItems();
+        var ALL_ITEMS = buildAllItems();
 
-        /* 상태 */
-        let selectedKeys = new Set();
-        let audioOn = false;
-        let quiz = null;
-        let lastSessionWrong = [];
-        let tickHandle = null,
+        // ES6의 Set 대신 일반 객체 사용
+        var selectedKeys = {};
+        var audioOn = false;
+        var quiz = null;
+        var lastSessionWrong = [];
+        var tickHandle = null,
             qStartAt = 0;
         
         /* 유틸 */
-        const $ = sel => document.querySelector(sel);
-        const $$ = sel => Array.from(document.querySelectorAll(sel));
+        function $(sel) { return document.querySelector(sel); }
+        function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
 
         function randInt(n) {
             return Math.floor(Math.random() * n);
         }
 
         function shuffle(a) {
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = randInt(i + 1);
-                [a[i], a[j]] = [a[j], a[i]];
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = randInt(i + 1);
+                var temp = a[i];
+                a[i] = a[j];
+                a[j] = temp;
             }
             return a;
         }
 
         function formatMs(ms) {
             if (ms === null || ms === undefined) return '-';
-            const s = Math.round(ms / 1000);
-            if (s < 60) return `${s}초`;
-            const m = Math.floor(s / 60),
-                r = s % 60;
-            return `${m}분 ${r}초`;
+            var s = Math.round(ms / 1000);
+            if (s < 60) return s + '초';
+            var m = Math.floor(s / 60);
+            var r = s % 60;
+            return m + '분 ' + r + '초';
         }
 
         /* 50음도 UI */
-        const grid = $('#hiragana-grid');
+        var grid = $('#hiragana-grid');
 
         function renderGrid() {
             grid.innerHTML = '';
-            const headerRow = grid.insertRow();
+            var headerRow = grid.insertRow();
             headerRow.insertCell().outerHTML = '<th class="hiragana-grid-col-header w-[50px]"></th>';
-            cols.forEach(c => {
-                const th = document.createElement('th');
+            cols.forEach(function(c) {
+                var th = document.createElement('th');
                 th.classList.add('hiragana-grid-col-header', 'p-3', 'font-medium', 'text-gray-500', 'cursor-pointer');
                 th.textContent = c.name.charAt(0);
                 th.title = c.name;
-                th.addEventListener('click', () => {
+                th.addEventListener('click', function() {
                     toggleCol(c.idx);
                     updateSelectionUI();
                 });
                 headerRow.appendChild(th);
             });
-            rows.forEach(r => {
-                const row = grid.insertRow();
-                const th = document.createElement('th');
+            rows.forEach(function(r) {
+                var row = grid.insertRow();
+                var th = document.createElement('th');
                 th.classList.add('hiragana-grid-row-header', 'p-3', 'text-xs', 'font-bold', 'text-gray-500', 'cursor-pointer');
                 th.textContent = r.name;
-                th.addEventListener('click', () => {
+                th.addEventListener('click', function() {
                     toggleRow(r.key);
                     updateSelectionUI();
                 });
                 row.appendChild(th);
                 if (r.kana && Array.isArray(r.kana)) {
-                    r.kana.forEach((k, ci) => {
-                        const cell = row.insertCell();
+                    r.kana.forEach(function(k, ci) {
+                        var cell = row.insertCell();
                         cell.classList.add('hiragana-grid-cell', 'p-3', 'text-lg', 'font-medium', 'text-gray-900', 'rounded-lg');
                         if (!k) {
                             cell.classList.add('text-gray-400');
@@ -572,8 +574,8 @@
                             cell.textContent = k;
                             cell.title = r.romaji[ci];
                             cell.style.cursor = 'pointer';
-                            if (selectedKeys.has(`${r.key}-${ci}-${k}`)) cell.classList.add('selected');
-                            cell.addEventListener('click', () => {
+                            if (selectedKeys.hasOwnProperty(`${r.key}-${ci}-${k}`)) cell.classList.add('selected');
+                            cell.addEventListener('click', function() {
                                 toggleCell(`${r.key}-${ci}-${k}`);
                                 if (audioOn) playAudioFor(r.romaji[ci]);
                                 updateSelectionUI();
@@ -581,9 +583,8 @@
                         }
                     });
                 } else {
-                    // 빈 셀을 추가하여 레이아웃 유지
-                    for (let i = 0; i < 5; i++) {
-                        const cell = row.insertCell();
+                    for (var i = 0; i < 5; i++) {
+                        var cell = row.insertCell();
                         cell.classList.add('hiragana-grid-cell', 'text-gray-400', 'p-3', 'text-lg', 'font-medium');
                         cell.textContent = '-';
                         cell.style.cursor = 'default';
@@ -593,69 +594,77 @@
         }
 
         function isRowSelected(rowKey) {
-            const rowItems = ALL_ITEMS.filter(i => i.row === rowKey);
+            var rowItems = ALL_ITEMS.filter(function(i) { return i.row === rowKey; });
             if (rowItems.length === 0) return false;
-            return rowItems.every(i => selectedKeys.has(`${i.row}-${i.colIdx}-${i.kana}`));
+            return rowItems.every(function(i) { return selectedKeys.hasOwnProperty(`${i.row}-${i.colIdx}-${i.kana}`); });
         }
 
         function isColSelected(colIdx) {
-            const colItems = ALL_ITEMS.filter(i => i.colIdx === colIdx);
+            var colItems = ALL_ITEMS.filter(function(i) { return i.colIdx === colIdx; });
             if (colItems.length === 0) return false;
-            return colItems.every(i => selectedKeys.has(`${i.row}-${i.colIdx}-${i.kana}`));
+            return colItems.every(function(i) { return selectedKeys.hasOwnProperty(`${i.row}-${i.colIdx}-${i.kana}`); });
         }
 
         function toggleCell(key) {
-            if (selectedKeys.has(key)) selectedKeys.delete(key);
-            else selectedKeys.add(key);
+            if (selectedKeys.hasOwnProperty(key)) {
+                delete selectedKeys[key];
+            } else {
+                selectedKeys[key] = true;
+            }
         }
 
         function toggleRow(rowKey) {
-            const keysInRow = ALL_ITEMS.filter(i => i.row === rowKey).map(i => `${i.row}-${i.colIdx}-${i.kana}`);
-            const allSelected = keysInRow.every(k => selectedKeys.has(k));
+            var keysInRow = ALL_ITEMS.filter(function(i) { return i.row === rowKey; }).map(function(i) { return `${i.row}-${i.colIdx}-${i.kana}`; });
+            var allSelected = keysInRow.every(function(k) { return selectedKeys.hasOwnProperty(k); });
             if (allSelected) {
-                keysInRow.forEach(k => selectedKeys.delete(k));
+                keysInRow.forEach(function(k) { delete selectedKeys[k]; });
             } else {
-                keysInRow.forEach(k => selectedKeys.add(k));
+                keysInRow.forEach(function(k) { selectedKeys[k] = true; });
             }
         }
 
         function toggleCol(colIdx) {
-            const keysInCol = ALL_ITEMS.filter(i => i.colIdx === colIdx);
-            const allSelected = keysInCol.every(i => selectedKeys.has(`${i.row}-${i.colIdx}-${i.kana}`));
+            var keysInCol = ALL_ITEMS.filter(function(i) { return i.colIdx === colIdx; });
+            var allSelected = keysInCol.every(function(i) { return selectedKeys.hasOwnProperty(`${i.row}-${i.colIdx}-${i.kana}`); });
             if (allSelected) {
-                keysInCol.forEach(i => selectedKeys.delete(`${i.row}-${i.colIdx}-${i.kana}`));
+                keysInCol.forEach(function(i) { delete selectedKeys[`${i.row}-${i.colIdx}-${i.kana}`]; });
             } else {
-                keysInCol.forEach(i => selectedKeys.add(`${i.row}-${i.colIdx}-${i.kana}`));
+                keysInCol.forEach(function(i) { selectedKeys[`${i.row}-${i.colIdx}-${i.kana}`] = true; });
             }
         }
 
         function currentSelectionItems() {
-            const set = new Set([...selectedKeys]);
-            return ALL_ITEMS.filter(i => set.has(`${i.row}-${i.colIdx}-${i.kana}`));
+            var items = [];
+            ALL_ITEMS.forEach(function(i) {
+                if (selectedKeys.hasOwnProperty(`${i.row}-${i.colIdx}-${i.kana}`)) {
+                    items.push(i);
+                }
+            });
+            return items;
         }
 
         function updateSelectionUI() {
             renderGrid();
-            const items = currentSelectionItems();
-            $('#sel-count').textContent = `선택된 글자: ${items.length}`;
-            const pills = $('#sel-pills');
+            var items = currentSelectionItems();
+            $('#sel-count').textContent = '선택된 글자: ' + items.length;
+            var pills = $('#sel-pills');
             pills.innerHTML = '';
-            const rowMap = new Map(),
-                colMap = new Map();
-            items.forEach(i => {
-                rowMap.set(i.rowName, (rowMap.get(i.rowName) || 0) + 1);
-                colMap.set(i.colName, (colMap.get(i.colName) || 0) + 1);
+            var rowMap = {};
+            var colMap = {};
+            items.forEach(function(i) {
+                rowMap[i.rowName] = (rowMap[i.rowName] || 0) + 1;
+                colMap[i.colName] = (colMap[i.colName] || 0) + 1;
             });
-            [...rowMap.entries()].forEach(([n, c]) => {
-                const el = document.createElement('span');
+            Object.keys(rowMap).forEach(function(n) {
+                var el = document.createElement('span');
                 el.className = 'tag';
-                el.textContent = `${n}`;
+                el.textContent = n;
                 pills.appendChild(el);
             });
-            [...colMap.entries()].forEach(([n, c]) => {
-                const el = document.createElement('span');
+            Object.keys(colMap).forEach(function(n) {
+                var el = document.createElement('span');
                 el.className = 'tag';
-                el.textContent = `${n}`;
+                el.textContent = n;
                 pills.appendChild(el);
             });
             
@@ -663,27 +672,27 @@
         }
         
         function updateWrongOnlyButtonState() {
-            const btn = $('#btn-wrong-only');
+            var btn = $('#btn-wrong-only');
             if (lastSessionWrong.length > 0) {
                 btn.disabled = false;
-                btn.textContent = `오답 모드 (${lastSessionWrong.length})`;
+                btn.textContent = '오답 모드 (' + lastSessionWrong.length + ')';
             } else {
                 btn.disabled = true;
                 btn.textContent = '오답 모드';
             }
         }
         
-        $('#btn-clear').addEventListener('click', () => {
-            selectedKeys.clear();
+        $('#btn-clear').addEventListener('click', function() {
+            selectedKeys = {};
             updateSelectionUI();
         });
-        $('#toggle-audio').addEventListener('change', e => {
+        $('#toggle-audio').addEventListener('change', function(e) {
             audioOn = e.target.checked;
         });
 
         /* 오디오 (MP3) */
-        const audio = $('#audio');
-        const audioMap = {
+        var audio = $('#audio');
+        var audioMap = {
             'a': 'https://0.tqn.com/z/g/japanese/library/media/audio/a.mp3',
             'i': 'https://0.tqn.com/z/g/japanese/library/media/audio/i.mp3',
             'u': 'https://0.tqn.com/z/g/japanese/library/media/audio/u.mp3',
@@ -732,22 +741,22 @@
         };
 
         function playAudioFor(romaji) {
-            const audioUrl = audioMap[romaji];
+            var audioUrl = audioMap[romaji];
             if (audioUrl) {
                 audio.src = audioUrl;
-                audio.play().catch(e => console.error("오디오 재생 오류:", e));
+                audio.play();
             } else {
-                console.warn(`오디오를 찾을 수 없습니다: ${romaji}`);
+                console.warn('오디오를 찾을 수 없습니다: ' + romaji);
             }
         }
         
         /* 배경 음악 로직 */
-        const bgm = $('#bgm');
-        const sfxCorrect = $('#sfx-correct');
-        const sfxIncorrect = $('#sfx-incorrect');
-        const sfxClear = $('#sfx-clear');
+        var bgm = $('#bgm');
+        var sfxCorrect = $('#sfx-correct');
+        var sfxIncorrect = $('#sfx-incorrect');
+        var sfxClear = $('#sfx-clear');
         
-        const bgmUrls = [
+        var bgmUrls = [
             'https://t1.daumcdn.net/cfile/tistory/990D774B5DA925FD24',
             'https://t1.daumcdn.net/cfile/tistory/99114F4E5F69FDB824',
             'https://t1.daumcdn.net/cfile/tistory/9917C53B5E90D86609',
@@ -790,10 +799,10 @@
             'https://t1.daumcdn.net/cfile/tistory/99FEC7335DB5A5CB33',
         ];
         
-        let bgmPlaying = false;
-        let hasInteracted = false;
+        var bgmPlaying = false;
+        var hasInteracted = false;
         
-        const musicIcon = {
+        var musicIcon = {
             on: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
             off: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-x"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`
         }
@@ -801,16 +810,12 @@
         function playRandomBgm() {
             if (!bgmUrls.length) return;
             bgm.src = bgmUrls[randInt(bgmUrls.length)];
-            bgm.play().catch(e => {
-                console.error("BGM 재생 오류:", e);
-                bgmPlaying = false;
-                updateBgmButton();
-            });
+            bgm.play();
         }
         
         function updateBgmButton() {
-            const btn = $('#bgm-toggle-btn');
-            const icon = $('#bgm-icon');
+            var btn = $('#bgm-toggle-btn');
+            var icon = $('#bgm-icon');
 
             if (bgmPlaying) {
                 if(icon) icon.innerHTML = musicIcon.on;
@@ -833,40 +838,39 @@
             updateBgmButton();
         }
         
-        const bgmToggleBtn = $('#bgm-toggle-btn');
-        const settingsBtn = $('#settings-btn');
-        const settingsModal = $('#settings-modal');
-        const settingsCloseBtn = $('#settings-close-btn');
-        const bgmVolumeControl = $('#bgm-volume');
-        const sfxVolumeControl = $('#sfx-volume');
+        var bgmToggleBtn = $('#bgm-toggle-btn');
+        var settingsBtn = $('#settings-btn');
+        var settingsModal = $('#settings-modal');
+        var settingsCloseBtn = $('#settings-close-btn');
+        var bgmVolumeControl = $('#bgm-volume');
+        var sfxVolumeControl = $('#sfx-volume');
         
         bgmVolumeControl.value = localStorage.getItem('bgmVolume') || 0.5;
         sfxVolumeControl.value = localStorage.getItem('sfxVolume') || 0.5;
         bgm.volume = bgmVolumeControl.value;
         sfxCorrect.volume = sfxIncorrect.volume = sfxClear.volume = sfxVolumeControl.value;
 
-        bgmVolumeControl.addEventListener('input', (e) => {
+        bgmVolumeControl.addEventListener('input', function(e) {
             bgm.volume = e.target.value;
             localStorage.setItem('bgmVolume', e.target.value);
         });
 
-        sfxVolumeControl.addEventListener('input', (e) => {
+        sfxVolumeControl.addEventListener('input', function(e) {
             sfxCorrect.volume = sfxIncorrect.volume = sfxClear.volume = e.target.value;
             localStorage.setItem('sfxVolume', e.target.value);
         });
 
         bgmToggleBtn.addEventListener('click', toggleBgm);
         
-        settingsBtn.addEventListener('click', () => {
+        settingsBtn.addEventListener('click', function() {
             settingsModal.classList.remove('hidden');
         });
 
-        settingsCloseBtn.addEventListener('click', () => {
+        settingsCloseBtn.addEventListener('click', function() {
             settingsModal.classList.add('hidden');
         });
 
-        // 사용자가 상호작용한 후 배경 음악 자동 재생
-        document.addEventListener('click', () => {
+        document.addEventListener('click', function() {
             if (!hasInteracted) {
                 hasInteracted = true;
                 bgmPlaying = true;
@@ -878,48 +882,48 @@
 
         /* 테스트 로직 */
         function getSelectedOption(groupElement) {
-            const activeBtn = groupElement.querySelector('.option-btn.active');
+            var activeBtn = groupElement.querySelector('.option-btn.active');
             return activeBtn ? activeBtn.dataset.value : null;
         }
 
         function makePoolFromSelection() {
-            const sel = currentSelectionItems();
+            var sel = currentSelectionItems();
             return sel.length ? sel : ALL_ITEMS.slice();
         }
 
-        function buildQuiz({
-            type,
-            timerMode,
-            timerValue = null,
-            mode,
-            wrongOnly = false
-        }) {
-            const pool = wrongOnly ? lastSessionWrong :
+        function buildQuiz(options) {
+            var type = options.type;
+            var timerMode = options.timerMode;
+            var timerValue = options.timerValue;
+            var mode = options.mode;
+            var wrongOnly = options.wrongOnly;
+            
+            var pool = wrongOnly ? lastSessionWrong :
                 (mode === 'randomAll' ? ALL_ITEMS.slice() : makePoolFromSelection());
-            let questions = shuffle(pool);
-            questions = questions.slice(0, questions.length).map(item => {
-                const distractors = shuffle(ALL_ITEMS.filter(i => i.kana !== item.kana)).slice(0, 3);
-                const optionsChar = shuffle([item.kana, ...distractors.map(d => d.kana)]);
-                const optionsRom = shuffle([item.romaji, ...distractors.map(d => d.romaji)]);
+            var questions = shuffle(pool);
+            questions = questions.slice(0, questions.length).map(function(item) {
+                var distractors = shuffle(ALL_ITEMS.filter(function(i) { return i.kana !== item.kana; })).slice(0, 3);
+                var optionsChar = shuffle([item.kana].concat(distractors.map(function(d) { return d.kana; })));
+                var optionsRom = shuffle([item.romaji].concat(distractors.map(function(d) { return d.romaji; })));
                 return {
-                    item,
-                    optionsChar,
-                    optionsRom,
+                    item: item,
+                    optionsChar: optionsChar,
+                    optionsRom: optionsRom,
                     user: null,
                     correct: null,
                     time: 0
                 };
             });
-            let allLimitMs = null;
-            let perLimitMs = null;
+            var allLimitMs = null;
+            var perLimitMs = null;
 
             if (timerMode === 'all60') {
                 allLimitMs = 60000;
             } else if (timerMode === 'per10') {
                 perLimitMs = 10000;
             } else if (timerMode === 'custom') {
-                const customTimeMode = $('#custom-time-mode').value;
-                const customTimeValue = parseInt($('#custom-time-value').value, 10);
+                var customTimeMode = $('#custom-time-mode').value;
+                var customTimeValue = parseInt($('#custom-time-value').value, 10);
                 if (customTimeValue > 0) {
                     if (customTimeMode === 'all') {
                         allLimitMs = customTimeValue * 1000;
@@ -929,46 +933,46 @@
                 }
             }
             quiz = {
-                type,
-                timerMode,
+                type: type,
+                timerMode: timerMode,
                 startedAt: performance.now(),
-                questions,
+                questions: questions,
                 idx: 0,
-                allLimitMs,
-                perLimitMs,
+                allLimitMs: allLimitMs,
+                perLimitMs: perLimitMs,
                 usedMs: 0,
                 wrongs: [],
                 rangeLabel: currentSelectionItems().length ? '선택 범위' : (wrongOnly ? '오답 모드' : '전체'),
-                wrongOnly
+                wrongOnly: wrongOnly
             };
         }
 
         function renderQuestion() {
             if (!quiz) return;
-            const q = quiz.questions[quiz.idx];
+            var q = quiz.questions[quiz.idx];
             $('#q-index').textContent = quiz.idx + 1;
             $('#q-total').textContent = quiz.questions.length;
             $('#q-stem').textContent = '';
             $('#choices').innerHTML = '';
             $('#input-row').style.display = 'none';
             $('#feedback').textContent = '';
-            $('#progress-bar-fill').style.width = `${((quiz.idx) / quiz.questions.length) * 100}%`;
+            $('#progress-bar-fill').style.width = (((quiz.idx) / quiz.questions.length) * 100) + '%';
             if (quiz.type === 'char-to-romaji') {
                 $('#q-stem').textContent = q.item.kana;
-                q.optionsRom.forEach(v => {
-                    const btn = document.createElement('button');
+                q.optionsRom.forEach(function(v) {
+                    var btn = document.createElement('button');
                     btn.classList.add('btn', 'btn-ghost', 'text-xl', 'font-bold', 'py-4', 'rounded-xl', 'transition-all');
                     btn.textContent = v;
-                    btn.addEventListener('click', () => submitAnswer(v));
+                    btn.addEventListener('click', function() { submitAnswer(v); });
                     $('#choices').appendChild(btn);
                 });
             } else if (quiz.type === 'romaji-to-char' || quiz.type === 'audio-to-char') {
                 $('#q-stem').textContent = (quiz.type === 'audio-to-char') ? '소리를 듣고 해당 문자를 고르세요.' : q.item.romaji;
-                q.optionsChar.forEach(v => {
-                    const btn = document.createElement('button');
+                q.optionsChar.forEach(function(v) {
+                    var btn = document.createElement('button');
                     btn.classList.add('btn', 'btn-ghost', 'text-4xl', 'font-bold', 'py-4', 'rounded-xl', 'transition-all');
                     btn.textContent = v;
-                    btn.addEventListener('click', () => submitAnswer(v));
+                    btn.addEventListener('click', function() { submitAnswer(v); });
                     $('#choices').appendChild(btn);
                 });
                 if (quiz.type === 'audio-to-char') playAudioFor(q.item.romaji);
@@ -988,20 +992,20 @@
         }
 
         function tick() {
-            const now = performance.now();
-            let remainText = '-';
+            var now = performance.now();
+            var remainText = '-';
             if (quiz.allLimitMs !== null) {
-                const used = now - quiz.startedAt;
-                const left = Math.max(0, quiz.allLimitMs - used);
-                remainText = `${Math.ceil(left / 1000)}초`;
+                var used = now - quiz.startedAt;
+                var left = Math.max(0, quiz.allLimitMs - used);
+                remainText = Math.ceil(left / 1000) + '초';
                 if (left <= 0) {
                     autoSubmitTimeout();
                     return;
                 }
             } else if (quiz.perLimitMs !== null) {
-                const used = now - qStartAt;
-                const left = Math.max(0, quiz.perLimitMs - used);
-                remainText = `${Math.ceil(left / 1000)}초`;
+                var used = now - qStartAt;
+                var left = Math.max(0, quiz.perLimitMs - used);
+                remainText = Math.ceil(left / 1000) + '초';
                 if (left <= 0) {
                     autoSubmitTimeout();
                     return;
@@ -1013,40 +1017,34 @@
 
         function autoSubmitTimeout() {
             if (tickHandle) cancelAnimationFrame(tickHandle);
-            const q = quiz.questions[quiz.idx];
+            var q = quiz.questions[quiz.idx];
             q.user = null;
             q.correct = false;
             q.time = quiz.perLimitMs !== null ? quiz.perLimitMs : (performance.now() - qStartAt);
             
-            if (quiz.wrongs.find(w => w.kana === q.item.kana) === undefined) {
+            if (quiz.wrongs.find(function(w) { return w.kana === q.item.kana; }) === undefined) {
                  quiz.wrongs.push(q.item);
             }
 
-            const fb = $('#feedback');
-            fb.textContent = `시간 초과! 정답: ${quiz.type === 'char-to-romaji' || quiz.type === 'char-input' ? q.item.romaji : q.item.kana}`;
+            var fb = $('#feedback');
+            fb.textContent = '시간 초과! 정답: ' + (quiz.type === 'char-to-romaji' || quiz.type === 'char-input' ? q.item.romaji : q.item.kana);
             fb.classList.add('text-red-500');
 
-            // 오답 애니메이션
             playFeedbackAnimation(false);
             
-            setTimeout(nextQuestion, 1500); // Wait longer for animation
+            setTimeout(nextQuestion, 1500);
         }
 
-        function submitAnswer(value, timeout = false) {
+        function submitAnswer(value) {
             if (!quiz) return;
             if (tickHandle) cancelAnimationFrame(tickHandle);
             
-            const q = quiz.questions[quiz.idx];
-            const now = performance.now();
+            var q = quiz.questions[quiz.idx];
+            var now = performance.now();
             q.time = now - qStartAt;
             
-            let correct = false;
-            let userAnswer = value;
-
-            if (timeout) {
-                 console.error("submitAnswer called with timeout=true, which should be handled by autoSubmitTimeout.");
-                 return;
-            }
+            var correct = false;
+            var userAnswer = value;
 
             if (quiz.type === 'char-input') {
                 userAnswer = ($('#text-answer').value || '').trim().toLowerCase();
@@ -1060,39 +1058,38 @@
             q.user = userAnswer || value;
             q.correct = correct;
             
-            const fb = $('#feedback');
+            var fb = $('#feedback');
             if (correct) {
                 fb.textContent = '정답!';
                 fb.classList.add('text-green-500');
             } else {
-                fb.textContent = '오답!'; // 오답 메시지 간소화
+                fb.textContent = '오답!';
                 fb.classList.add('text-red-500');
-                if (quiz.wrongs.find(w => w.kana === q.item.kana) === undefined) {
+                if (quiz.wrongs.find(function(w) { return w.kana === q.item.kana; }) === undefined) {
                     quiz.wrongs.push(q.item);
                 }
             }
             
-            // 정답/오답 애니메이션과 사운드 재생
             playFeedbackAnimation(correct);
 
-            $$('#choices .btn').forEach(btn => {
+            $$('#choices .btn').forEach(function(btn) {
                 if (quiz.type === 'char-to-romaji') {
-                    if (btn.textContent === q.item.romaji) btn.classList.replace('btn-ghost', 'btn-success');
-                    if (!correct && btn.textContent === value) btn.classList.replace('btn-ghost', 'btn-danger');
+                    if (btn.textContent === q.item.romaji) { btn.classList.remove('btn-ghost'); btn.classList.add('btn-success'); }
+                    if (!correct && btn.textContent === value) { btn.classList.remove('btn-ghost'); btn.classList.add('btn-danger'); }
                 } else {
-                    if (btn.textContent === q.item.kana) btn.classList.replace('btn-ghost', 'btn-success');
-                    if (!correct && btn.textContent === value) btn.classList.replace('btn-ghost', 'btn-danger');
+                    if (btn.textContent === q.item.kana) { btn.classList.remove('btn-ghost'); btn.classList.add('btn-success'); }
+                    if (!correct && btn.textContent === value) { btn.classList.remove('btn-ghost'); btn.classList.add('btn-danger'); }
                 }
                 btn.disabled = true;
             });
             if (quiz.type === 'char-input') $('#btn-submit').disabled = true;
-            setTimeout(nextQuestion, 1500); // Wait longer for animation
+            setTimeout(nextQuestion, 1500);
         }
         
         function playFeedbackAnimation(isCorrect) {
-            const feedbackEl = $('#feedback-image');
-            const audioEl = isCorrect ? sfxCorrect : sfxIncorrect;
-            const containerEl = $('#screen-test');
+            var feedbackEl = $('#feedback-image');
+            var audioEl = isCorrect ? sfxCorrect : sfxIncorrect;
+            var containerEl = $('#screen-test');
 
             feedbackEl.src = isCorrect ? 'https://hirago.nmate.kr/images/correct.png' : 'https://hirago.nmate.kr/images/wrong.png';
             feedbackEl.classList.remove('scale-0', 'opacity-0');
@@ -1112,9 +1109,9 @@
             feedbackEl.classList.add('visible');
 
             audioEl.currentTime = 0;
-            audioEl.play().catch(e => console.error("SFX 재생 오류:", e));
+            audioEl.play();
             
-            setTimeout(() => {
+            setTimeout(function() {
                 feedbackEl.classList.remove('visible');
                 if (containerEl) {
                     containerEl.classList.remove('correct-animation', 'incorrect-animation');
@@ -1128,7 +1125,7 @@
             if (quiz.idx >= quiz.questions.length) {
                 finishQuiz();
             } else {
-                const fb = $('#feedback');
+                var fb = $('#feedback');
                 if (fb) {
                      fb.classList.remove('text-green-500', 'text-red-500');
                 }
@@ -1138,10 +1135,10 @@
 
         function finishQuiz() {
             if (tickHandle) cancelAnimationFrame(tickHandle);
-            const used = performance.now() - quiz.startedAt;
-            const correctCnt = quiz.questions.filter(q => q.correct).length;
-            const total = quiz.questions.length;
-            const avg = quiz.questions.length ? quiz.questions.reduce((a, c) => a + c.time, 0) / quiz.questions.length : 0;
+            var used = performance.now() - quiz.startedAt;
+            var correctCnt = quiz.questions.filter(function(q) { return q.correct; }).length;
+            var total = quiz.questions.length;
+            var avg = quiz.questions.length ? quiz.questions.reduce(function(a, c) { return a + c.time; }, 0) / quiz.questions.length : 0;
             
             if (quiz.wrongOnly) {
                 if (quiz.wrongs.length === 0) {
@@ -1150,27 +1147,24 @@
                     lastSessionWrong = quiz.wrongs.slice();
                 }
             } else {
-                const newWrongs = quiz.wrongs.filter(item => !lastSessionWrong.some(w => w.kana === item.kana));
-                lastSessionWrong.push(...newWrongs);
+                var newWrongs = quiz.wrongs.filter(function(item) { return !lastSessionWrong.some(function(w) { return w.kana === item.kana; }); });
+                lastSessionWrong.push.apply(lastSessionWrong, newWrongs);
             }
             
-            $('#res-score').textContent = `${correctCnt} / ${total}`;
-            const accuracy = total ? Math.round((correctCnt / total) * 100) : 0;
-            $('#res-acc').textContent = `${accuracy}%`;
+            $('#res-score').textContent = correctCnt + ' / ' + total;
+            var accuracy = total ? Math.round((correctCnt / total) * 100) : 0;
+            $('#res-acc').textContent = accuracy + '%';
             $('#res-avg').textContent = formatMs(avg);
             $('#res-total').textContent = formatMs(used);
             
-            // Star animation logic
-            const star1 = $('#star-1');
-            const star2 = $('#star-2');
-            const star3 = $('#star-3');
+            var star1 = $('#star-1');
+            var star2 = $('#star-2');
+            var star3 = $('#star-3');
 
-            // Reset all star states
             star1.classList.remove('visible');
             star2.classList.remove('visible');
             star3.classList.remove('visible');
             
-            // Apply visible class based on accuracy
             if (accuracy >= 90) {
                 star1.classList.add('visible');
                 star2.classList.add('visible');
@@ -1185,12 +1179,12 @@
                 sfxClear.play();
             }
             
-            const wl = $('#wrong-list');
+            var wl = $('#wrong-list');
             if (wl) {
                  wl.innerHTML = '';
             }
 
-            const wrongsToDisplay = quiz.wrongs.slice();
+            var wrongsToDisplay = quiz.wrongs.slice();
             
             if (wrongsToDisplay.length === 0) {
                 if (wl) {
@@ -1201,10 +1195,10 @@
                     }
                 }
             } else {
-                wrongsToDisplay.forEach((item) => {
-                    const q = quiz.questions.find(q => q.item.kana === item.kana);
-                    const userAns = q ? q.user : '알 수 없음';
-                    const div = document.createElement('div');
+                wrongsToDisplay.forEach(function(item) {
+                    var q = quiz.questions.find(function(q) { return q.item.kana === item.kana; });
+                    var userAns = q ? q.user : '알 수 없음';
+                    var div = document.createElement('div');
                     div.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'rounded-lg', 'bg-red-50');
                     div.innerHTML = `
                       <span class="text-sm font-medium text-red-700">${item.kana} (${item.romaji})</span>
@@ -1216,7 +1210,7 @@
                 });
             }
 
-            const btnWrongRetake = $('#btn-wrong-retake');
+            var btnWrongRetake = $('#btn-wrong-retake');
             if (btnWrongRetake) {
                 if (quiz.wrongs.length > 0) {
                     btnWrongRetake.style.display = 'inline-flex';
@@ -1225,51 +1219,47 @@
                 }
             }
             
-            const ra = $('#range-acc-list');
+            var ra = $('#range-acc-list');
             if (ra) {
                  ra.innerHTML = '';
             }
-            const byRow = new Map(),
-                byCol = new Map();
-            quiz.questions.forEach(q => {
-                const rKey = q.item.rowName;
-                const cKey = q.item.colName;
-                if (!byRow.has(rKey)) byRow.set(rKey, {
-                    t: 0,
-                    c: 0
-                });
-                if (!byCol.has(cKey)) byCol.set(cKey, {
-                    t: 0,
-                    c: 0
-                });
-                byRow.get(rKey).t++;
-                byRow.get(rKey).c += q.correct ? 1 : 0;
-                byCol.get(cKey).t++;
-                byCol.get(cKey).c += q.correct ? 1 : 0;
+            var byRow = {};
+            var byCol = {};
+            quiz.questions.forEach(function(q) {
+                var rKey = q.item.rowName;
+                var cKey = q.item.colName;
+                if (!byRow.hasOwnProperty(rKey)) byRow[rKey] = { t: 0, c: 0 };
+                if (!byCol.hasOwnProperty(cKey)) byCol[cKey] = { t: 0, c: 0 };
+                byRow[rKey].t++;
+                byRow[rKey].c += q.correct ? 1 : 0;
+                byCol[cKey].t++;
+                byCol[cKey].c += q.correct ? 1 : 0;
             });
-            [...byRow.entries()].forEach(([name, v]) => {
-                const el = document.createElement('div');
+            Object.keys(byRow).forEach(function(name) {
+                var v = byRow[name];
+                var el = document.createElement('div');
                 el.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'rounded-lg', 'bg-gray-50');
-                const acc = v.t ? Math.round((v.c / v.t) * 100) : 0;
-                el.innerHTML = `<span class="text-sm font-medium text-gray-700">${name}</span><span class="text-sm font-semibold text-gray-900">${acc}% (${v.c}/${v.t})</span>`;
+                var acc = v.t ? Math.round((v.c / v.t) * 100) : 0;
+                el.innerHTML = '<span class="text-sm font-medium text-gray-700">' + name + '</span><span class="text-sm font-semibold text-gray-900">' + acc + '% (' + v.c + '/' + v.t + ')</span>';
                 if (ra) {
                      ra.appendChild(el);
                 }
             });
-            [...byCol.entries()].forEach(([name, v]) => {
-                const el = document.createElement('div');
+            Object.keys(byCol).forEach(function(name) {
+                var v = byCol[name];
+                var el = document.createElement('div');
                 el.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'rounded-lg', 'bg-gray-50');
-                const acc = v.t ? Math.round((v.c / v.t) * 100) : 0;
-                el.innerHTML = `<span class="text-sm font-medium text-gray-700">${name}</span><span class="text-sm font-semibold text-gray-900">${acc}% (${v.c}/${v.t})</span>`;
+                var acc = v.t ? Math.round((v.c / v.t) * 100) : 0;
+                el.innerHTML = '<span class="text-sm font-medium text-gray-700">' + name + '</span><span class="text-sm font-semibold text-gray-900">' + acc + '% (' + v.c + '/' + v.t + ')</span>';
                 if (ra) {
                     ra.appendChild(el);
                 }
             });
             
-            const screenTest = $('#screen-test');
-            const screenResult = $('#screen-result');
-            const screenMain = $('#screen-main');
-            const header = $('#header');
+            var screenTest = $('#screen-test');
+            var screenResult = $('#screen-result');
+            var screenMain = $('#screen-main');
+            var header = $('#header');
 
             if (screenTest) screenTest.style.display = 'none';
             if (screenResult) screenResult.style.display = 'block';
@@ -1280,11 +1270,11 @@
         }
 
         /* 이벤트 바인딩 */
-        $$('.option-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+        $$('.option-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                btn.parentElement.querySelectorAll('.option-btn').forEach(function(b) { b.classList.remove('active'); });
                 btn.classList.add('active');
-                const customInput = $('#custom-timer-input');
+                var customInput = $('#custom-timer-input');
                 if (btn.dataset.value === 'custom') {
                     customInput.style.display = 'block';
                 } else {
@@ -1292,43 +1282,43 @@
                 }
             });
         });
-        $('#btn-start').addEventListener('click', () => {
-            const type = getSelectedOption($('#q-type-options'));
-            const timer = getSelectedOption($('#q-timer-options'));
+        $('#btn-start').addEventListener('click', function() {
+            var type = getSelectedOption($('#q-type-options'));
+            var timer = getSelectedOption($('#q-timer-options'));
             buildQuiz({
-                type,
+                type: type,
                 timerMode: timer,
                 mode: 'selected',
                 wrongOnly: false
             });
             startQuiz();
         });
-        $('#btn-wrong-only').addEventListener('click', () => {
+        $('#btn-wrong-only').addEventListener('click', function() {
             if (!lastSessionWrong.length) {
                 showModal('오답이 없습니다. 먼저 테스트를 진행해 주세요.');
                 return;
             }
-            const type = getSelectedOption($('#q-type-options'));
-            const timer = getSelectedOption($('#q-timer-options'));
+            var type = getSelectedOption($('#q-type-options'));
+            var timer = getSelectedOption($('#q-timer-options'));
             buildQuiz({
-                type,
+                type: type,
                 timerMode: timer,
                 mode: 'wrongOnly',
                 wrongOnly: true
             });
             startQuiz();
         });
-        $('#btn-audio-play').addEventListener('click', () => {
+        $('#btn-audio-play').addEventListener('click', function() {
             if (!quiz) return;
             playAudioFor(quiz.questions[quiz.idx].item.romaji);
         });
-        $('#btn-submit').addEventListener('click', () => submitAnswer(null));
-        $('#text-answer').addEventListener('keydown', e => {
+        $('#btn-submit').addEventListener('click', function() { submitAnswer(null); });
+        $('#text-answer').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') submitAnswer(null);
         });
-        $('#btn-skip').addEventListener('click', () => autoSubmitTimeout());
-        $('#btn-retry').addEventListener('click', () => {
-            const prev = quiz;
+        $('#btn-skip').addEventListener('click', function() { autoSubmitTimeout(); });
+        $('#btn-retry').addEventListener('click', function() {
+            var prev = quiz;
             buildQuiz({
                 type: prev.type,
                 timerMode: prev.timerMode,
@@ -1337,12 +1327,12 @@
             });
             startQuiz();
         });
-        $('#btn-wrong-retake').addEventListener('click', () => {
+        $('#btn-wrong-retake').addEventListener('click', function() {
             if (!quiz || quiz.wrongs.length === 0) {
                  showModal('방금 본 테스트에 오답이 없습니다.');
                 return;
             }
-            const prev = quiz;
+            var prev = quiz;
             buildQuiz({
                 type: prev.type,
                 timerMode: prev.timerMode,
@@ -1351,7 +1341,7 @@
             });
             startQuiz();
         });
-        $('#btn-new-range').addEventListener('click', () => {
+        $('#btn-new-range').addEventListener('click', function() {
             $('#screen-result').style.display = 'none';
             $('#screen-main').style.display = 'block';
             $('#header').classList.remove('header-hidden');
@@ -1362,9 +1352,9 @@
                 showModal('선택된 범위에 유효한 글자가 없습니다.');
                 return;
             }
-            const screenMain = $('#screen-main');
-            const screenTest = $('#screen-test');
-            const screenResult = $('#screen-result');
+            var screenMain = $('#screen-main');
+            var screenTest = $('#screen-test');
+            var screenResult = $('#screen-result');
 
             if (screenMain) screenMain.style.display = 'none';
             if (screenTest) screenTest.style.display = 'block';
@@ -1375,7 +1365,7 @@
         }
 
         function showModal(message) {
-            let modal = document.getElementById('custom-modal');
+            var modal = document.getElementById('custom-modal');
             if (!modal) {
                 modal = document.createElement('div');
                 modal.id = 'custom-modal';
@@ -1387,7 +1377,7 @@
                     </div>
                 `;
                 document.body.appendChild(modal);
-                document.getElementById('modal-ok-btn').addEventListener('click', () => {
+                document.getElementById('modal-ok-btn').addEventListener('click', function() {
                     modal.style.display = 'none';
                 });
             }
@@ -1395,7 +1385,7 @@
             modal.style.display = 'flex';
         }
 
-        window.onload = () => {
+        window.onload = function() {
             renderGrid();
             updateSelectionUI();
             updateBgmButton();
