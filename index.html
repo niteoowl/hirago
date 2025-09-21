@@ -157,6 +157,7 @@
         .hiragana-grid-cell.selected {
             background-color: var(--color-primary-light);
             color: var(--color-primary-dark);
+            border: 1px solid var(--color-primary);
         }
 
         .hiragana-grid-cell:hover {
@@ -800,7 +801,6 @@
         ];
         
         var bgmPlaying = false;
-        var hasInteracted = false;
         
         var musicIcon = {
             on: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
@@ -810,11 +810,18 @@
         function playRandomBgm() {
             if (!bgmUrls.length) return;
             bgm.src = bgmUrls[randInt(bgmUrls.length)];
-            bgm.play();
+            var playPromise = bgm.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(function(error) {
+                    // Autoplay was prevented. User will need to interact to start.
+                    console.warn("BGM playback was prevented:", error);
+                    bgmPlaying = false;
+                    updateBgmButton();
+                });
+            }
         }
         
         function updateBgmButton() {
-            var btn = $('#bgm-toggle-btn');
             var icon = $('#bgm-icon');
 
             if (bgmPlaying) {
@@ -827,7 +834,6 @@
         bgm.addEventListener('ended', playRandomBgm);
 
         function toggleBgm() {
-            hasInteracted = true;
             if (bgmPlaying) {
                 bgm.pause();
                 bgmPlaying = false;
@@ -869,15 +875,6 @@
         settingsCloseBtn.addEventListener('click', function() {
             settingsModal.classList.add('hidden');
         });
-
-        document.addEventListener('click', function() {
-            if (!hasInteracted) {
-                hasInteracted = true;
-                bgmPlaying = true;
-                playRandomBgm();
-                updateBgmButton();
-            }
-        }, { once: true });
 
 
         /* 테스트 로직 */
